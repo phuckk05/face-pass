@@ -1,5 +1,8 @@
+import 'package:facepass/features/face_verification/domain/entities/face_embedding%20.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+
+import '../../../domain/usecase/resgister_face.dart';
 
 part 'recognized_faces_bloc.freezed.dart';
 part 'recognized_faces_event.dart';
@@ -7,7 +10,9 @@ part 'recognized_faces_state.dart';
 
 class RecognizedFacesBloc
     extends Bloc<RecognizedFacesEvent, RecognizedFacesState> {
-  RecognizedFacesBloc() : super(const RecognizedFacesState.initial()) {
+  final RegisterFaceUseCase registerFaceUseCase;
+  RecognizedFacesBloc({required this.registerFaceUseCase})
+    : super(const RecognizedFacesState.initial()) {
     /* 1 */
     on<LoadRecognizedFacesEvent>(_loadRecognizedFaces);
     /* 2 */
@@ -28,19 +33,21 @@ class RecognizedFacesBloc
     AddRecognizedFaceEvent event,
     Emitter<RecognizedFacesState> emit,
   ) async {
-    final embedding = event.faceEmbedding;
-    //kiểm tra nếu null thì cút
-    if (embedding == null || embedding.isEmpty) return;
-
-    final updated = [
-      ...state.maybeWhen(
-        hasData: (faces) => faces,
-        loading: (faces) => faces,
-        orElse: () => <List<double>>[],
-      ),
-      embedding,
-    ];
-
-    emit(RecognizedFacesState.hasData(recognizedFaces: updated));
+    emit(RecognizedFacesState.loading());
+    try {
+      final result = await registerFaceUseCase.callRegisterFace(
+        event.faceEmbedding,
+      );
+      if (result) {
+        emit(RecognizedFacesState.success(embedding: event.faceEmbedding));
+      }
+    } catch (e) {
+      emit(
+        RecognizedFacesState.error(
+          message: "Lỗi khi thêm khuôn mặt vào danh sách",
+          faces: [],
+        ),
+      );
+    }
   }
 }

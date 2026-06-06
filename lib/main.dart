@@ -1,18 +1,67 @@
 import 'package:facepass/core/router/router_app.dart';
+import 'package:facepass/features/face_verification/data/datasource/remote/faces_datasource.dart';
+import 'package:facepass/features/face_verification/data/datasource/remote/users_datasource.dart';
+import 'package:facepass/features/face_verification/data/repositories/recognized_repository_impl.dart';
+import 'package:facepass/features/face_verification/data/repositories/recognizing_repository_impl.dart';
+import 'package:facepass/features/face_verification/domain/repositories/recognized_repository.dart';
+import 'package:facepass/features/face_verification/domain/repositories/recognizing_repository.dart';
+import 'package:facepass/features/face_verification/domain/usecase/resgister_face.dart';
+import 'package:facepass/features/face_verification/presentasion/blocs/register_user/user_bloc.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 
+import 'features/face_verification/domain/usecase/resgister_user.dart';
 import 'features/face_verification/presentasion/blocs/recognized_faces/recognized_faces_bloc.dart';
 import 'features/face_verification/presentasion/blocs/recognizing_face/recognizing_face_bloc.dart';
 import 'features/face_verification/presentasion/cubit/camera_process_cubit.dart';
 
-void main() {
+final sl = GetIt.instance;
+
+Future<void> init() async {
+  // datasource
+  sl.registerLazySingleton<FacesRemoteDataSource>(
+    () => FacesRemoteDataSource(),
+  );
+  sl.registerLazySingleton<UserRemoteDatasource>(() => UserRemoteDatasource());
+
+  // repository
+  sl.registerLazySingleton<RecognizingRepository>(
+    () =>
+        RecognizingRepositoryImpl(facesDatasource: sl(), userDatasource: sl()),
+  );
+  sl.registerLazySingleton<RecognizedRepository>(
+    () => RecognizedRepositoryImpl(remoteDataSource: sl()),
+  );
+
+  // usecase
+  sl.registerLazySingleton(
+    () => RegisterFaceUseCase(recognizingRepository: sl()),
+  );
+
+  sl.registerLazySingleton(
+    () => RegisterUserUseCase(recognizingRepository: sl()),
+  );
+}
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  //tạo firebase
+  await Firebase.initializeApp();
+  await init();
+
   runApp(
     MultiBlocProvider(
       providers: [
         //Đăng kí bloc
-        BlocProvider(create: (_) => RecognizedFacesBloc()),
-        BlocProvider(create: (_) => RecognizingFaceBloc()),
+        BlocProvider(
+          create: (_) => RecognizedFacesBloc(registerFaceUseCase: sl()),
+        ),
+        BlocProvider(
+          create: (_) => RecognizingFaceBloc(registerFaceUseCase: sl()),
+        ),
+        BlocProvider(create: (_) => UserBloc(registerUserUseCase: sl())),
         //Đăng kí cubit
         BlocProvider(create: (_) => CameraProcessCubit()),
       ],

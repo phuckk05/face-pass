@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:camera/camera.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/recognized_faces/recognized_faces_bloc.dart';
+import 'package:facepass/features/face_verification/presentasion/blocs/register_user/user_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,7 +12,11 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 import '../../../../core/utils/camera_utils.dart';
 import '../blocs/recognizing_face/recognizing_face_bloc.dart';
 import '../cubit/camera_process_cubit.dart';
+import '../widgets/buttom_pannel_cus.dart';
 import '../widgets/camera_cus.dart';
+import '../widgets/date_chip_cus.dart';
+import '../widgets/face_oval_cus.dart';
+import '../widgets/live_chip_cus.dart';
 
 class FaceNetService {
   Interpreter? interpreter;
@@ -45,6 +50,9 @@ class _CameraScreenState extends State<CameraScreen> {
 
   @override
   void initState() {
+    //giả lập đã call trước
+    context.read<UserBloc>().add(GetUserByIdEvent(id: "1780664304466"));
+
     _initializeAll();
     super.initState();
   }
@@ -98,35 +106,76 @@ class _CameraScreenState extends State<CameraScreen> {
 
   // _scanFace gọn lại
   void _scanFace() async {
-    final recognizedFacesBloc = context.read<RecognizedFacesBloc>();
-    final cameraState = context.read<CameraProcessCubit>();
+    final cameraCubit = context.read<CameraProcessCubit>();
+    final recognizingBloc = context.read<RecognizingFaceBloc>();
+    final stream = recognizingBloc.stream;
+    // final userBloc = context.read<UserBloc>();
 
-    if (cameraState.state['isProcessing'] ||
-        !cameraState.state['isCameraReady'])
+    if (cameraCubit.state['isProcessing'] ||
+        !cameraCubit.state['isCameraReady']) {
       return;
+    }
 
-    cameraState.setProcessing(true);
-    //stream
     try {
-      final image = await _controller!.takePicture();
-      final embedding = await _processFaceRecognition(image.path);
-      if (embedding != null && embedding.isNotEmpty) {
-        recognizedFacesBloc.add(AddRecognizedFaceEvent(embedding));
+      cameraCubit.setProcessing(true);
+
+      recognizingBloc.add(InitProcessFaceEvent());
+
+      recognizingBloc.add(CreateTempFaceEmbedding(userId: '1780664304466'));
+
+      int count = 0;
+      int countFaceFailed = 0;
+
+      while (count < 5) {
+        debugPrint('Bắt đầu vòng lặp: $count');
+
+        final image = await _controller!.takePicture();
+        debugPrint('Đã chụp ảnh');
+        final embedding = await _processFaceRecognition(image.path);
+
+        if (embedding == null) {
+          countFaceFailed++;
+          if (countFaceFailed == 3) {
+            recognizingBloc.add(StopVerifyingEvent(message: 'Đã dừng xử lý'));
+            return;
+          }
+          recognizingBloc.add(
+            CheckSimilarityEvent(message: 'Không phát hiện khuôn mặt'),
+          );
+          continue;
+        }
+        recognizingBloc.add(
+          CheckSimilarityEvent(message: 'Đang xử lý khuôn mặt'),
+        );
+
+        recognizingBloc.add(
+          ProcessingFaceEvent(newEmbedding: embedding, index: count + 1),
+        );
+
+        final result = await stream.firstWhere(
+          (state) =>
+              state is RecognizingFaceProcessingErrol ||
+              state is RecognizingFaceProcessingUpdate ||
+              state is RecognizingFaceSuccess ||
+              state is RecognizingFaceFailed,
+        );
+
+        if (result is RecognizingFaceProcessingErrol ||
+            result is RecognizingFaceFailed) {
+          continue;
+        }
+        debugPrint('Vòng lặp thứ: $count');
+        count++;
       }
+    } catch (e) {
+      debugPrint('Scan face error: $e');
     } finally {
       if (mounted) {
-        cameraState.setProcessing(false);
-        cameraState.setCameraReady(true);
+        cameraCubit.setProcessing(false);
+        cameraCubit.setCameraReady(true);
       }
     }
   }
-
-  // Stream<StreamController<CameraImage>> _streamImage() async* {
-  //   _controller!.startImageStream((CameraImage image) async {
-  //     await Future.delayed(const Duration(seconds: 1));
-  //     yield image;
-  //   });
-  // }
 
   void _checkSimilarity() async {
     final recognizedFacesBloc = context.read<RecognizedFacesBloc>();
@@ -147,9 +196,9 @@ class _CameraScreenState extends State<CameraScreen> {
       debugPrint('No face detected for similarity check.');
       return;
     }
-    context.read<RecognizingFaceBloc>().add(
-      ProcessingFaceEvent(newEmbedding: newEmbedding, faces: recognizedFaces),
-    );
+    // context.read<RecognizingFaceBloc>().add(
+    //   ProcessingFaceEvent(newEmbedding: newEmbedding, faces: recognizedFaces),
+    // );
   }
 
   ElevatedButton elevatedButton({
@@ -174,91 +223,121 @@ class _CameraScreenState extends State<CameraScreen> {
     );
   }
 
-  final output = (String text) => AnimatedSlide(
-    duration: const Duration(milliseconds: 300),
-    offset: text.isEmpty ? const Offset(0, -1) : Offset.zero,
-    curve: Curves.easeInOut,
-    child: Align(alignment: Alignment.centerLeft, child: Text('Output: $text')),
+  BlocBuilder<RecognizingFaceBloc, RecognizingFaceState>
+  get recognizingBloc => BlocBuilder<RecognizingFaceBloc, RecognizingFaceState>(
+    buildWhen: (previous, current) {
+      if (current is RecognizingFaceProcessingUpdate) {
+        debugPrint("DEBUG: ${current.embedding.toString()}");
+      }
+      return previous != current;
+    },
+    builder: (context, state) {
+      return state.maybeWhen(
+        initial: (messge) =>
+            output(messge ?? 'Vui lòng cho khuôn mặt vào khung để nhận diện'),
+        processingErrol: (message) => output(message),
+        processingUpdate: (embedding, message) {
+          debugPrint(
+            '${embedding.vector1.length} ${embedding.vector2.length} ${embedding.vector3.length} ${embedding.vector4.length} ${embedding.vector5.length}',
+          );
+          return output(message ?? 'Vui lòng đợi, đang xử lý...');
+        },
+        success: (embedding, message) => output(message!),
+        failed: (message) => output(message),
+        processing: (message) => output(message),
+        orElse: () => output('No data'),
+      );
+    },
   );
-
-  BlocBuilder<RecognizingFaceBloc, RecognizingFaceState> get recognizingBloc =>
-      BlocBuilder<RecognizingFaceBloc, RecognizingFaceState>(
-        builder: (context, state) {
-          return state.maybeWhen(
-            initial: (messge) => output(
-              messge ?? 'Vui lòng cho khuôn mặt vào khung để nhận diện',
-            ),
-            success: (embedding, message) => output(message!),
-            failed: (message) => output(message),
-            processing: (message) => output(message),
-            orElse: () => output('No data'),
+  Widget buildListener({required Widget child}) {
+    return BlocListener<RecognizingFaceBloc, RecognizingFaceState>(
+      listener: (context, state) {
+        state.maybeWhen(
+          success: (embedding, message) {
+            context.read<RecognizedFacesBloc>().add(
+              AddRecognizedFaceEvent(embedding),
+            );
+          },
+          orElse: () {},
+        );
+      },
+      child: BlocListener<RecognizedFacesBloc, RecognizedFacesState>(
+        listener: (context, state) {
+          state.maybeWhen(
+            success: (embedding) {
+              context.read<RecognizingFaceBloc>().add(
+                CheckSimilarityEvent(message: 'Đã thêm khuôn mặt thành công'),
+              );
+            },
+            orElse: () {},
           );
         },
-      );
+        child: child,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // appBar: AppBar(title: const Text('Camera')),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(flex: 7, child: CameraCus(controller: _controller)),
-            SizedBox(height: 20),
-            Expanded(
-              child: SizedBox(
-                height: 50,
-                width: double.infinity,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: BlocBuilder<CameraProcessCubit, Map<String, dynamic>>(
-                    builder: (context, cameraState) {
-                      return elevatedButton(
-                        cameraState: cameraState,
-                        onPressed:
-                            cameraState['isProcessing'] ||
-                                !cameraState['isCameraReady']
-                            ? null
-                            : _scanFace,
-                        text: 'Scan Face',
-                      );
-                    },
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 10),
-            recognizingBloc,
-            SizedBox(height: 10),
-            Expanded(
-              child: SizedBox(
-                height: 50,
-                width: double.infinity,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: ElevatedButton(
-                    onPressed: _checkSimilarity,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue.shade600,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: const Text(
-                      'Check Similarity',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+    return buildListener(
+      child: Scaffold(
+        body: SafeArea(
+          child: Stack(
+            children: [
+              // Camera full screen
+              Positioned.fill(child: CameraCus(controller: _controller)),
+
+              // Dark gradient overlay
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.5),
+                        Colors.transparent,
+                        Colors.transparent,
+                        Colors.black.withOpacity(0.8),
+                      ],
+                      stops: const [0, 0.2, 0.6, 1],
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+
+              // Top bar
+              Positioned(
+                top: 12,
+                left: 20,
+                right: 20,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [DateChipCus(), LiveChipCus()],
+                ),
+              ),
+
+              // Oval frame + scan line
+              Center(child: FaceOvalCus()),
+
+              // Bottom panel
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                child: ButtomPannelCus(
+                  recognizingBloc: recognizingBloc,
+                  onScan: _scanFace,
+                  onCheck: _checkSimilarity,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
+
+  Widget output(String message) =>
+      Text(message, style: const TextStyle(color: Colors.white70));
 }

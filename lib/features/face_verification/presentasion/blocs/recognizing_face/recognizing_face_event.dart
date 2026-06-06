@@ -5,9 +5,35 @@ abstract class RecognizingFaceEvent {}
 class InitProcessFaceEvent extends RecognizingFaceEvent {}
 
 class ProcessingFaceEvent extends RecognizingFaceEvent {
-  final List<double> newEmbedding;
-  final List<List<double>> faces;
-  ProcessingFaceEvent({required this.newEmbedding, required this.faces});
+  final List<double>? newEmbedding;
+  final int? index;
+  ProcessingFaceEvent({this.newEmbedding, this.index});
+}
+
+class UpdateFaceEmbedding extends RecognizingFaceEvent {
+  final List<double>? embedding;
+  final int index;
+  UpdateFaceEmbedding({required this.embedding, required this.index});
+}
+
+class CreateTempFaceEmbedding extends RecognizingFaceEvent {
+  final String userId;
+  CreateTempFaceEmbedding({required this.userId});
+}
+
+class StopVerifyingEvent extends RecognizingFaceEvent {
+  final String message;
+  StopVerifyingEvent({required this.message});
+}
+
+class CheckSimilarityEvent extends RecognizingFaceEvent {
+  final String message;
+  CheckSimilarityEvent({required this.message});
+}
+
+class PushToDatabaseEvent extends RecognizingFaceEvent {
+  final FaceEmbedding embedding;
+  PushToDatabaseEvent({required this.embedding});
 }
 
 // class ProcessSuccessFaceEvent extends RecognizingFaceEvent {

@@ -55,15 +55,16 @@ extension RecognizedFacesStatePatterns on RecognizedFacesState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( _RecognizedFacesInitialState value)?  initial,TResult Function( _RecognizedFacesHasDataState value)?  hasData,TResult Function( _RecognizedFacesErrorState value)?  error,TResult Function( _RecognizedFacesLoadingState value)?  loading,TResult Function( _RecognizedFacesEmptyState value)?  empty,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( RecognizedFacesInitialState value)?  initial,TResult Function( RecognizedFacesHasDataState value)?  hasData,TResult Function( RecognizedFacesErrorState value)?  error,TResult Function( RecognizedFacesLoadingState value)?  loading,TResult Function( _RecognizedFacesEmptyState value)?  empty,TResult Function( RecognizedFacesSuccessState value)?  success,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
-case _RecognizedFacesInitialState() when initial != null:
-return initial(_that);case _RecognizedFacesHasDataState() when hasData != null:
-return hasData(_that);case _RecognizedFacesErrorState() when error != null:
-return error(_that);case _RecognizedFacesLoadingState() when loading != null:
+case RecognizedFacesInitialState() when initial != null:
+return initial(_that);case RecognizedFacesHasDataState() when hasData != null:
+return hasData(_that);case RecognizedFacesErrorState() when error != null:
+return error(_that);case RecognizedFacesLoadingState() when loading != null:
 return loading(_that);case _RecognizedFacesEmptyState() when empty != null:
-return empty(_that);case _:
+return empty(_that);case RecognizedFacesSuccessState() when success != null:
+return success(_that);case _:
   return orElse();
 
 }
@@ -81,15 +82,16 @@ return empty(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( _RecognizedFacesInitialState value)  initial,required TResult Function( _RecognizedFacesHasDataState value)  hasData,required TResult Function( _RecognizedFacesErrorState value)  error,required TResult Function( _RecognizedFacesLoadingState value)  loading,required TResult Function( _RecognizedFacesEmptyState value)  empty,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( RecognizedFacesInitialState value)  initial,required TResult Function( RecognizedFacesHasDataState value)  hasData,required TResult Function( RecognizedFacesErrorState value)  error,required TResult Function( RecognizedFacesLoadingState value)  loading,required TResult Function( _RecognizedFacesEmptyState value)  empty,required TResult Function( RecognizedFacesSuccessState value)  success,}){
 final _that = this;
 switch (_that) {
-case _RecognizedFacesInitialState():
-return initial(_that);case _RecognizedFacesHasDataState():
-return hasData(_that);case _RecognizedFacesErrorState():
-return error(_that);case _RecognizedFacesLoadingState():
+case RecognizedFacesInitialState():
+return initial(_that);case RecognizedFacesHasDataState():
+return hasData(_that);case RecognizedFacesErrorState():
+return error(_that);case RecognizedFacesLoadingState():
 return loading(_that);case _RecognizedFacesEmptyState():
-return empty(_that);}
+return empty(_that);case RecognizedFacesSuccessState():
+return success(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -103,15 +105,16 @@ return empty(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( _RecognizedFacesInitialState value)?  initial,TResult? Function( _RecognizedFacesHasDataState value)?  hasData,TResult? Function( _RecognizedFacesErrorState value)?  error,TResult? Function( _RecognizedFacesLoadingState value)?  loading,TResult? Function( _RecognizedFacesEmptyState value)?  empty,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( RecognizedFacesInitialState value)?  initial,TResult? Function( RecognizedFacesHasDataState value)?  hasData,TResult? Function( RecognizedFacesErrorState value)?  error,TResult? Function( RecognizedFacesLoadingState value)?  loading,TResult? Function( _RecognizedFacesEmptyState value)?  empty,TResult? Function( RecognizedFacesSuccessState value)?  success,}){
 final _that = this;
 switch (_that) {
-case _RecognizedFacesInitialState() when initial != null:
-return initial(_that);case _RecognizedFacesHasDataState() when hasData != null:
-return hasData(_that);case _RecognizedFacesErrorState() when error != null:
-return error(_that);case _RecognizedFacesLoadingState() when loading != null:
+case RecognizedFacesInitialState() when initial != null:
+return initial(_that);case RecognizedFacesHasDataState() when hasData != null:
+return hasData(_that);case RecognizedFacesErrorState() when error != null:
+return error(_that);case RecognizedFacesLoadingState() when loading != null:
 return loading(_that);case _RecognizedFacesEmptyState() when empty != null:
-return empty(_that);case _:
+return empty(_that);case RecognizedFacesSuccessState() when success != null:
+return success(_that);case _:
   return null;
 
 }
@@ -128,14 +131,15 @@ return empty(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( List<List<double>> recognizedFaces)?  hasData,TResult Function( String? message,  List<List<double>> faces)?  error,TResult Function( List<List<double>> faces)?  loading,TResult Function()?  empty,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( List<FaceEmbedding> recognizedFaces)?  hasData,TResult Function( String? message,  List<FaceEmbedding> faces)?  error,TResult Function( List<FaceEmbedding> faces)?  loading,TResult Function()?  empty,TResult Function( FaceEmbedding embedding)?  success,required TResult orElse(),}) {final _that = this;
 switch (_that) {
-case _RecognizedFacesInitialState() when initial != null:
-return initial();case _RecognizedFacesHasDataState() when hasData != null:
-return hasData(_that.recognizedFaces);case _RecognizedFacesErrorState() when error != null:
-return error(_that.message,_that.faces);case _RecognizedFacesLoadingState() when loading != null:
+case RecognizedFacesInitialState() when initial != null:
+return initial();case RecognizedFacesHasDataState() when hasData != null:
+return hasData(_that.recognizedFaces);case RecognizedFacesErrorState() when error != null:
+return error(_that.message,_that.faces);case RecognizedFacesLoadingState() when loading != null:
 return loading(_that.faces);case _RecognizedFacesEmptyState() when empty != null:
-return empty();case _:
+return empty();case RecognizedFacesSuccessState() when success != null:
+return success(_that.embedding);case _:
   return orElse();
 
 }
@@ -153,14 +157,15 @@ return empty();case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( List<List<double>> recognizedFaces)  hasData,required TResult Function( String? message,  List<List<double>> faces)  error,required TResult Function( List<List<double>> faces)  loading,required TResult Function()  empty,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( List<FaceEmbedding> recognizedFaces)  hasData,required TResult Function( String? message,  List<FaceEmbedding> faces)  error,required TResult Function( List<FaceEmbedding> faces)  loading,required TResult Function()  empty,required TResult Function( FaceEmbedding embedding)  success,}) {final _that = this;
 switch (_that) {
-case _RecognizedFacesInitialState():
-return initial();case _RecognizedFacesHasDataState():
-return hasData(_that.recognizedFaces);case _RecognizedFacesErrorState():
-return error(_that.message,_that.faces);case _RecognizedFacesLoadingState():
+case RecognizedFacesInitialState():
+return initial();case RecognizedFacesHasDataState():
+return hasData(_that.recognizedFaces);case RecognizedFacesErrorState():
+return error(_that.message,_that.faces);case RecognizedFacesLoadingState():
 return loading(_that.faces);case _RecognizedFacesEmptyState():
-return empty();}
+return empty();case RecognizedFacesSuccessState():
+return success(_that.embedding);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -174,14 +179,15 @@ return empty();}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( List<List<double>> recognizedFaces)?  hasData,TResult? Function( String? message,  List<List<double>> faces)?  error,TResult? Function( List<List<double>> faces)?  loading,TResult? Function()?  empty,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( List<FaceEmbedding> recognizedFaces)?  hasData,TResult? Function( String? message,  List<FaceEmbedding> faces)?  error,TResult? Function( List<FaceEmbedding> faces)?  loading,TResult? Function()?  empty,TResult? Function( FaceEmbedding embedding)?  success,}) {final _that = this;
 switch (_that) {
-case _RecognizedFacesInitialState() when initial != null:
-return initial();case _RecognizedFacesHasDataState() when hasData != null:
-return hasData(_that.recognizedFaces);case _RecognizedFacesErrorState() when error != null:
-return error(_that.message,_that.faces);case _RecognizedFacesLoadingState() when loading != null:
+case RecognizedFacesInitialState() when initial != null:
+return initial();case RecognizedFacesHasDataState() when hasData != null:
+return hasData(_that.recognizedFaces);case RecognizedFacesErrorState() when error != null:
+return error(_that.message,_that.faces);case RecognizedFacesLoadingState() when loading != null:
 return loading(_that.faces);case _RecognizedFacesEmptyState() when empty != null:
-return empty();case _:
+return empty();case RecognizedFacesSuccessState() when success != null:
+return success(_that.embedding);case _:
   return null;
 
 }
@@ -192,8 +198,8 @@ return empty();case _:
 /// @nodoc
 
 
-class _RecognizedFacesInitialState implements RecognizedFacesState {
-  const _RecognizedFacesInitialState();
+class RecognizedFacesInitialState implements RecognizedFacesState {
+  const RecognizedFacesInitialState();
   
 
 
@@ -203,7 +209,7 @@ class _RecognizedFacesInitialState implements RecognizedFacesState {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RecognizedFacesInitialState);
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecognizedFacesInitialState);
 }
 
 
@@ -224,12 +230,12 @@ String toString() {
 /// @nodoc
 
 
-class _RecognizedFacesHasDataState implements RecognizedFacesState {
-  const _RecognizedFacesHasDataState({required final  List<List<double>> recognizedFaces}): _recognizedFaces = recognizedFaces;
+class RecognizedFacesHasDataState implements RecognizedFacesState {
+  const RecognizedFacesHasDataState({required final  List<FaceEmbedding> recognizedFaces}): _recognizedFaces = recognizedFaces;
   
 
- final  List<List<double>> _recognizedFaces;
- List<List<double>> get recognizedFaces {
+ final  List<FaceEmbedding> _recognizedFaces;
+ List<FaceEmbedding> get recognizedFaces {
   if (_recognizedFaces is EqualUnmodifiableListView) return _recognizedFaces;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_recognizedFaces);
@@ -240,13 +246,13 @@ class _RecognizedFacesHasDataState implements RecognizedFacesState {
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$RecognizedFacesHasDataStateCopyWith<_RecognizedFacesHasDataState> get copyWith => __$RecognizedFacesHasDataStateCopyWithImpl<_RecognizedFacesHasDataState>(this, _$identity);
+$RecognizedFacesHasDataStateCopyWith<RecognizedFacesHasDataState> get copyWith => _$RecognizedFacesHasDataStateCopyWithImpl<RecognizedFacesHasDataState>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RecognizedFacesHasDataState&&const DeepCollectionEquality().equals(other._recognizedFaces, _recognizedFaces));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecognizedFacesHasDataState&&const DeepCollectionEquality().equals(other._recognizedFaces, _recognizedFaces));
 }
 
 
@@ -262,11 +268,11 @@ String toString() {
 }
 
 /// @nodoc
-abstract mixin class _$RecognizedFacesHasDataStateCopyWith<$Res> implements $RecognizedFacesStateCopyWith<$Res> {
-  factory _$RecognizedFacesHasDataStateCopyWith(_RecognizedFacesHasDataState value, $Res Function(_RecognizedFacesHasDataState) _then) = __$RecognizedFacesHasDataStateCopyWithImpl;
+abstract mixin class $RecognizedFacesHasDataStateCopyWith<$Res> implements $RecognizedFacesStateCopyWith<$Res> {
+  factory $RecognizedFacesHasDataStateCopyWith(RecognizedFacesHasDataState value, $Res Function(RecognizedFacesHasDataState) _then) = _$RecognizedFacesHasDataStateCopyWithImpl;
 @useResult
 $Res call({
- List<List<double>> recognizedFaces
+ List<FaceEmbedding> recognizedFaces
 });
 
 
@@ -274,19 +280,19 @@ $Res call({
 
 }
 /// @nodoc
-class __$RecognizedFacesHasDataStateCopyWithImpl<$Res>
-    implements _$RecognizedFacesHasDataStateCopyWith<$Res> {
-  __$RecognizedFacesHasDataStateCopyWithImpl(this._self, this._then);
+class _$RecognizedFacesHasDataStateCopyWithImpl<$Res>
+    implements $RecognizedFacesHasDataStateCopyWith<$Res> {
+  _$RecognizedFacesHasDataStateCopyWithImpl(this._self, this._then);
 
-  final _RecognizedFacesHasDataState _self;
-  final $Res Function(_RecognizedFacesHasDataState) _then;
+  final RecognizedFacesHasDataState _self;
+  final $Res Function(RecognizedFacesHasDataState) _then;
 
 /// Create a copy of RecognizedFacesState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') $Res call({Object? recognizedFaces = null,}) {
-  return _then(_RecognizedFacesHasDataState(
+  return _then(RecognizedFacesHasDataState(
 recognizedFaces: null == recognizedFaces ? _self._recognizedFaces : recognizedFaces // ignore: cast_nullable_to_non_nullable
-as List<List<double>>,
+as List<FaceEmbedding>,
   ));
 }
 
@@ -296,13 +302,13 @@ as List<List<double>>,
 /// @nodoc
 
 
-class _RecognizedFacesErrorState implements RecognizedFacesState {
-  const _RecognizedFacesErrorState({this.message, final  List<List<double>> faces = const []}): _faces = faces;
+class RecognizedFacesErrorState implements RecognizedFacesState {
+  const RecognizedFacesErrorState({this.message, final  List<FaceEmbedding> faces = const []}): _faces = faces;
   
 
  final  String? message;
- final  List<List<double>> _faces;
-@JsonKey() List<List<double>> get faces {
+ final  List<FaceEmbedding> _faces;
+@JsonKey() List<FaceEmbedding> get faces {
   if (_faces is EqualUnmodifiableListView) return _faces;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_faces);
@@ -313,13 +319,13 @@ class _RecognizedFacesErrorState implements RecognizedFacesState {
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$RecognizedFacesErrorStateCopyWith<_RecognizedFacesErrorState> get copyWith => __$RecognizedFacesErrorStateCopyWithImpl<_RecognizedFacesErrorState>(this, _$identity);
+$RecognizedFacesErrorStateCopyWith<RecognizedFacesErrorState> get copyWith => _$RecognizedFacesErrorStateCopyWithImpl<RecognizedFacesErrorState>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RecognizedFacesErrorState&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other._faces, _faces));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecognizedFacesErrorState&&(identical(other.message, message) || other.message == message)&&const DeepCollectionEquality().equals(other._faces, _faces));
 }
 
 
@@ -335,11 +341,11 @@ String toString() {
 }
 
 /// @nodoc
-abstract mixin class _$RecognizedFacesErrorStateCopyWith<$Res> implements $RecognizedFacesStateCopyWith<$Res> {
-  factory _$RecognizedFacesErrorStateCopyWith(_RecognizedFacesErrorState value, $Res Function(_RecognizedFacesErrorState) _then) = __$RecognizedFacesErrorStateCopyWithImpl;
+abstract mixin class $RecognizedFacesErrorStateCopyWith<$Res> implements $RecognizedFacesStateCopyWith<$Res> {
+  factory $RecognizedFacesErrorStateCopyWith(RecognizedFacesErrorState value, $Res Function(RecognizedFacesErrorState) _then) = _$RecognizedFacesErrorStateCopyWithImpl;
 @useResult
 $Res call({
- String? message, List<List<double>> faces
+ String? message, List<FaceEmbedding> faces
 });
 
 
@@ -347,20 +353,20 @@ $Res call({
 
 }
 /// @nodoc
-class __$RecognizedFacesErrorStateCopyWithImpl<$Res>
-    implements _$RecognizedFacesErrorStateCopyWith<$Res> {
-  __$RecognizedFacesErrorStateCopyWithImpl(this._self, this._then);
+class _$RecognizedFacesErrorStateCopyWithImpl<$Res>
+    implements $RecognizedFacesErrorStateCopyWith<$Res> {
+  _$RecognizedFacesErrorStateCopyWithImpl(this._self, this._then);
 
-  final _RecognizedFacesErrorState _self;
-  final $Res Function(_RecognizedFacesErrorState) _then;
+  final RecognizedFacesErrorState _self;
+  final $Res Function(RecognizedFacesErrorState) _then;
 
 /// Create a copy of RecognizedFacesState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') $Res call({Object? message = freezed,Object? faces = null,}) {
-  return _then(_RecognizedFacesErrorState(
+  return _then(RecognizedFacesErrorState(
 message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
 as String?,faces: null == faces ? _self._faces : faces // ignore: cast_nullable_to_non_nullable
-as List<List<double>>,
+as List<FaceEmbedding>,
   ));
 }
 
@@ -370,12 +376,12 @@ as List<List<double>>,
 /// @nodoc
 
 
-class _RecognizedFacesLoadingState implements RecognizedFacesState {
-  const _RecognizedFacesLoadingState({final  List<List<double>> faces = const []}): _faces = faces;
+class RecognizedFacesLoadingState implements RecognizedFacesState {
+  const RecognizedFacesLoadingState({final  List<FaceEmbedding> faces = const []}): _faces = faces;
   
 
- final  List<List<double>> _faces;
-@JsonKey() List<List<double>> get faces {
+ final  List<FaceEmbedding> _faces;
+@JsonKey() List<FaceEmbedding> get faces {
   if (_faces is EqualUnmodifiableListView) return _faces;
   // ignore: implicit_dynamic_type
   return EqualUnmodifiableListView(_faces);
@@ -386,13 +392,13 @@ class _RecognizedFacesLoadingState implements RecognizedFacesState {
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
 @pragma('vm:prefer-inline')
-_$RecognizedFacesLoadingStateCopyWith<_RecognizedFacesLoadingState> get copyWith => __$RecognizedFacesLoadingStateCopyWithImpl<_RecognizedFacesLoadingState>(this, _$identity);
+$RecognizedFacesLoadingStateCopyWith<RecognizedFacesLoadingState> get copyWith => _$RecognizedFacesLoadingStateCopyWithImpl<RecognizedFacesLoadingState>(this, _$identity);
 
 
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _RecognizedFacesLoadingState&&const DeepCollectionEquality().equals(other._faces, _faces));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecognizedFacesLoadingState&&const DeepCollectionEquality().equals(other._faces, _faces));
 }
 
 
@@ -408,11 +414,11 @@ String toString() {
 }
 
 /// @nodoc
-abstract mixin class _$RecognizedFacesLoadingStateCopyWith<$Res> implements $RecognizedFacesStateCopyWith<$Res> {
-  factory _$RecognizedFacesLoadingStateCopyWith(_RecognizedFacesLoadingState value, $Res Function(_RecognizedFacesLoadingState) _then) = __$RecognizedFacesLoadingStateCopyWithImpl;
+abstract mixin class $RecognizedFacesLoadingStateCopyWith<$Res> implements $RecognizedFacesStateCopyWith<$Res> {
+  factory $RecognizedFacesLoadingStateCopyWith(RecognizedFacesLoadingState value, $Res Function(RecognizedFacesLoadingState) _then) = _$RecognizedFacesLoadingStateCopyWithImpl;
 @useResult
 $Res call({
- List<List<double>> faces
+ List<FaceEmbedding> faces
 });
 
 
@@ -420,19 +426,19 @@ $Res call({
 
 }
 /// @nodoc
-class __$RecognizedFacesLoadingStateCopyWithImpl<$Res>
-    implements _$RecognizedFacesLoadingStateCopyWith<$Res> {
-  __$RecognizedFacesLoadingStateCopyWithImpl(this._self, this._then);
+class _$RecognizedFacesLoadingStateCopyWithImpl<$Res>
+    implements $RecognizedFacesLoadingStateCopyWith<$Res> {
+  _$RecognizedFacesLoadingStateCopyWithImpl(this._self, this._then);
 
-  final _RecognizedFacesLoadingState _self;
-  final $Res Function(_RecognizedFacesLoadingState) _then;
+  final RecognizedFacesLoadingState _self;
+  final $Res Function(RecognizedFacesLoadingState) _then;
 
 /// Create a copy of RecognizedFacesState
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') $Res call({Object? faces = null,}) {
-  return _then(_RecognizedFacesLoadingState(
+  return _then(RecognizedFacesLoadingState(
 faces: null == faces ? _self._faces : faces // ignore: cast_nullable_to_non_nullable
-as List<List<double>>,
+as List<FaceEmbedding>,
   ));
 }
 
@@ -470,5 +476,71 @@ String toString() {
 
 
 
+
+/// @nodoc
+
+
+class RecognizedFacesSuccessState implements RecognizedFacesState {
+  const RecognizedFacesSuccessState({required this.embedding});
+  
+
+ final  FaceEmbedding embedding;
+
+/// Create a copy of RecognizedFacesState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RecognizedFacesSuccessStateCopyWith<RecognizedFacesSuccessState> get copyWith => _$RecognizedFacesSuccessStateCopyWithImpl<RecognizedFacesSuccessState>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecognizedFacesSuccessState&&(identical(other.embedding, embedding) || other.embedding == embedding));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,embedding);
+
+@override
+String toString() {
+  return 'RecognizedFacesState.success(embedding: $embedding)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RecognizedFacesSuccessStateCopyWith<$Res> implements $RecognizedFacesStateCopyWith<$Res> {
+  factory $RecognizedFacesSuccessStateCopyWith(RecognizedFacesSuccessState value, $Res Function(RecognizedFacesSuccessState) _then) = _$RecognizedFacesSuccessStateCopyWithImpl;
+@useResult
+$Res call({
+ FaceEmbedding embedding
+});
+
+
+
+
+}
+/// @nodoc
+class _$RecognizedFacesSuccessStateCopyWithImpl<$Res>
+    implements $RecognizedFacesSuccessStateCopyWith<$Res> {
+  _$RecognizedFacesSuccessStateCopyWithImpl(this._self, this._then);
+
+  final RecognizedFacesSuccessState _self;
+  final $Res Function(RecognizedFacesSuccessState) _then;
+
+/// Create a copy of RecognizedFacesState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? embedding = null,}) {
+  return _then(RecognizedFacesSuccessState(
+embedding: null == embedding ? _self.embedding : embedding // ignore: cast_nullable_to_non_nullable
+as FaceEmbedding,
+  ));
+}
+
+
+}
 
 // dart format on
