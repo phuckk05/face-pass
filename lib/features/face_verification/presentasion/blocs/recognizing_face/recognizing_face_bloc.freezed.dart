@@ -55,7 +55,7 @@ extension RecognizingFaceStatePatterns on RecognizingFaceState {
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( RecognizingFaceInitial value)?  initial,TResult Function( RecognizingFaceProcessing value)?  processing,TResult Function( RecognizingFaceFailed value)?  failed,TResult Function( RecognizingFaceProcessingErrol value)?  processingErrol,TResult Function( RecognizingFaceProcessingUpdate value)?  processingUpdate,TResult Function( RecognizingFaceSuccess value)?  success,required TResult orElse(),}){
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>({TResult Function( RecognizingFaceInitial value)?  initial,TResult Function( RecognizingFaceProcessing value)?  processing,TResult Function( RecognizingFaceFailed value)?  failed,TResult Function( RecognizingFaceProcessingErrol value)?  processingErrol,TResult Function( RecognizingFaceProcessingUpdate value)?  processingUpdate,TResult Function( RecognizingFaceSuccess value)?  success,TResult Function( RecognizingFaceSimilaritySuccess value)?  similaritySuccess,required TResult orElse(),}){
 final _that = this;
 switch (_that) {
 case RecognizingFaceInitial() when initial != null:
@@ -64,7 +64,8 @@ return processing(_that);case RecognizingFaceFailed() when failed != null:
 return failed(_that);case RecognizingFaceProcessingErrol() when processingErrol != null:
 return processingErrol(_that);case RecognizingFaceProcessingUpdate() when processingUpdate != null:
 return processingUpdate(_that);case RecognizingFaceSuccess() when success != null:
-return success(_that);case _:
+return success(_that);case RecognizingFaceSimilaritySuccess() when similaritySuccess != null:
+return similaritySuccess(_that);case _:
   return orElse();
 
 }
@@ -82,7 +83,7 @@ return success(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( RecognizingFaceInitial value)  initial,required TResult Function( RecognizingFaceProcessing value)  processing,required TResult Function( RecognizingFaceFailed value)  failed,required TResult Function( RecognizingFaceProcessingErrol value)  processingErrol,required TResult Function( RecognizingFaceProcessingUpdate value)  processingUpdate,required TResult Function( RecognizingFaceSuccess value)  success,}){
+@optionalTypeArgs TResult map<TResult extends Object?>({required TResult Function( RecognizingFaceInitial value)  initial,required TResult Function( RecognizingFaceProcessing value)  processing,required TResult Function( RecognizingFaceFailed value)  failed,required TResult Function( RecognizingFaceProcessingErrol value)  processingErrol,required TResult Function( RecognizingFaceProcessingUpdate value)  processingUpdate,required TResult Function( RecognizingFaceSuccess value)  success,required TResult Function( RecognizingFaceSimilaritySuccess value)  similaritySuccess,}){
 final _that = this;
 switch (_that) {
 case RecognizingFaceInitial():
@@ -91,7 +92,8 @@ return processing(_that);case RecognizingFaceFailed():
 return failed(_that);case RecognizingFaceProcessingErrol():
 return processingErrol(_that);case RecognizingFaceProcessingUpdate():
 return processingUpdate(_that);case RecognizingFaceSuccess():
-return success(_that);}
+return success(_that);case RecognizingFaceSimilaritySuccess():
+return similaritySuccess(_that);}
 }
 /// A variant of `map` that fallback to returning `null`.
 ///
@@ -105,7 +107,7 @@ return success(_that);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( RecognizingFaceInitial value)?  initial,TResult? Function( RecognizingFaceProcessing value)?  processing,TResult? Function( RecognizingFaceFailed value)?  failed,TResult? Function( RecognizingFaceProcessingErrol value)?  processingErrol,TResult? Function( RecognizingFaceProcessingUpdate value)?  processingUpdate,TResult? Function( RecognizingFaceSuccess value)?  success,}){
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>({TResult? Function( RecognizingFaceInitial value)?  initial,TResult? Function( RecognizingFaceProcessing value)?  processing,TResult? Function( RecognizingFaceFailed value)?  failed,TResult? Function( RecognizingFaceProcessingErrol value)?  processingErrol,TResult? Function( RecognizingFaceProcessingUpdate value)?  processingUpdate,TResult? Function( RecognizingFaceSuccess value)?  success,TResult? Function( RecognizingFaceSimilaritySuccess value)?  similaritySuccess,}){
 final _that = this;
 switch (_that) {
 case RecognizingFaceInitial() when initial != null:
@@ -114,7 +116,8 @@ return processing(_that);case RecognizingFaceFailed() when failed != null:
 return failed(_that);case RecognizingFaceProcessingErrol() when processingErrol != null:
 return processingErrol(_that);case RecognizingFaceProcessingUpdate() when processingUpdate != null:
 return processingUpdate(_that);case RecognizingFaceSuccess() when success != null:
-return success(_that);case _:
+return success(_that);case RecognizingFaceSimilaritySuccess() when similaritySuccess != null:
+return similaritySuccess(_that);case _:
   return null;
 
 }
@@ -131,7 +134,7 @@ return success(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? messge)?  initial,TResult Function( String messge)?  processing,TResult Function( String message)?  failed,TResult Function( String message)?  processingErrol,TResult Function( FaceEmbedding embedding,  String? message)?  processingUpdate,TResult Function( FaceEmbedding embedding,  String? messge)?  success,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String? messge)?  initial,TResult Function( String messge)?  processing,TResult Function( String message)?  failed,TResult Function( String message)?  processingErrol,TResult Function( FaceEmbedding embedding,  String? message)?  processingUpdate,TResult Function( FaceEmbedding embedding,  String? messge)?  success,TResult Function( FaceEmbedding embedding,  String? messge)?  similaritySuccess,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case RecognizingFaceInitial() when initial != null:
 return initial(_that.messge);case RecognizingFaceProcessing() when processing != null:
@@ -139,7 +142,8 @@ return processing(_that.messge);case RecognizingFaceFailed() when failed != null
 return failed(_that.message);case RecognizingFaceProcessingErrol() when processingErrol != null:
 return processingErrol(_that.message);case RecognizingFaceProcessingUpdate() when processingUpdate != null:
 return processingUpdate(_that.embedding,_that.message);case RecognizingFaceSuccess() when success != null:
-return success(_that.embedding,_that.messge);case _:
+return success(_that.embedding,_that.messge);case RecognizingFaceSimilaritySuccess() when similaritySuccess != null:
+return similaritySuccess(_that.embedding,_that.messge);case _:
   return orElse();
 
 }
@@ -157,7 +161,7 @@ return success(_that.embedding,_that.messge);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? messge)  initial,required TResult Function( String messge)  processing,required TResult Function( String message)  failed,required TResult Function( String message)  processingErrol,required TResult Function( FaceEmbedding embedding,  String? message)  processingUpdate,required TResult Function( FaceEmbedding embedding,  String? messge)  success,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String? messge)  initial,required TResult Function( String messge)  processing,required TResult Function( String message)  failed,required TResult Function( String message)  processingErrol,required TResult Function( FaceEmbedding embedding,  String? message)  processingUpdate,required TResult Function( FaceEmbedding embedding,  String? messge)  success,required TResult Function( FaceEmbedding embedding,  String? messge)  similaritySuccess,}) {final _that = this;
 switch (_that) {
 case RecognizingFaceInitial():
 return initial(_that.messge);case RecognizingFaceProcessing():
@@ -165,7 +169,8 @@ return processing(_that.messge);case RecognizingFaceFailed():
 return failed(_that.message);case RecognizingFaceProcessingErrol():
 return processingErrol(_that.message);case RecognizingFaceProcessingUpdate():
 return processingUpdate(_that.embedding,_that.message);case RecognizingFaceSuccess():
-return success(_that.embedding,_that.messge);}
+return success(_that.embedding,_that.messge);case RecognizingFaceSimilaritySuccess():
+return similaritySuccess(_that.embedding,_that.messge);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -179,7 +184,7 @@ return success(_that.embedding,_that.messge);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? messge)?  initial,TResult? Function( String messge)?  processing,TResult? Function( String message)?  failed,TResult? Function( String message)?  processingErrol,TResult? Function( FaceEmbedding embedding,  String? message)?  processingUpdate,TResult? Function( FaceEmbedding embedding,  String? messge)?  success,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String? messge)?  initial,TResult? Function( String messge)?  processing,TResult? Function( String message)?  failed,TResult? Function( String message)?  processingErrol,TResult? Function( FaceEmbedding embedding,  String? message)?  processingUpdate,TResult? Function( FaceEmbedding embedding,  String? messge)?  success,TResult? Function( FaceEmbedding embedding,  String? messge)?  similaritySuccess,}) {final _that = this;
 switch (_that) {
 case RecognizingFaceInitial() when initial != null:
 return initial(_that.messge);case RecognizingFaceProcessing() when processing != null:
@@ -187,7 +192,8 @@ return processing(_that.messge);case RecognizingFaceFailed() when failed != null
 return failed(_that.message);case RecognizingFaceProcessingErrol() when processingErrol != null:
 return processingErrol(_that.message);case RecognizingFaceProcessingUpdate() when processingUpdate != null:
 return processingUpdate(_that.embedding,_that.message);case RecognizingFaceSuccess() when success != null:
-return success(_that.embedding,_that.messge);case _:
+return success(_that.embedding,_that.messge);case RecognizingFaceSimilaritySuccess() when similaritySuccess != null:
+return similaritySuccess(_that.embedding,_that.messge);case _:
   return null;
 
 }
@@ -586,6 +592,74 @@ class _$RecognizingFaceSuccessCopyWithImpl<$Res>
 /// with the given fields replaced by the non-null parameter values.
 @pragma('vm:prefer-inline') $Res call({Object? embedding = null,Object? messge = freezed,}) {
   return _then(RecognizingFaceSuccess(
+embedding: null == embedding ? _self.embedding : embedding // ignore: cast_nullable_to_non_nullable
+as FaceEmbedding,messge: freezed == messge ? _self.messge : messge // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+/// @nodoc
+
+
+class RecognizingFaceSimilaritySuccess implements RecognizingFaceState {
+  const RecognizingFaceSimilaritySuccess({required this.embedding, required this.messge});
+  
+
+ final  FaceEmbedding embedding;
+ final  String? messge;
+
+/// Create a copy of RecognizingFaceState
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$RecognizingFaceSimilaritySuccessCopyWith<RecognizingFaceSimilaritySuccess> get copyWith => _$RecognizingFaceSimilaritySuccessCopyWithImpl<RecognizingFaceSimilaritySuccess>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecognizingFaceSimilaritySuccess&&(identical(other.embedding, embedding) || other.embedding == embedding)&&(identical(other.messge, messge) || other.messge == messge));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,embedding,messge);
+
+@override
+String toString() {
+  return 'RecognizingFaceState.similaritySuccess(embedding: $embedding, messge: $messge)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $RecognizingFaceSimilaritySuccessCopyWith<$Res> implements $RecognizingFaceStateCopyWith<$Res> {
+  factory $RecognizingFaceSimilaritySuccessCopyWith(RecognizingFaceSimilaritySuccess value, $Res Function(RecognizingFaceSimilaritySuccess) _then) = _$RecognizingFaceSimilaritySuccessCopyWithImpl;
+@useResult
+$Res call({
+ FaceEmbedding embedding, String? messge
+});
+
+
+
+
+}
+/// @nodoc
+class _$RecognizingFaceSimilaritySuccessCopyWithImpl<$Res>
+    implements $RecognizingFaceSimilaritySuccessCopyWith<$Res> {
+  _$RecognizingFaceSimilaritySuccessCopyWithImpl(this._self, this._then);
+
+  final RecognizingFaceSimilaritySuccess _self;
+  final $Res Function(RecognizingFaceSimilaritySuccess) _then;
+
+/// Create a copy of RecognizingFaceState
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') $Res call({Object? embedding = null,Object? messge = freezed,}) {
+  return _then(RecognizingFaceSimilaritySuccess(
 embedding: null == embedding ? _self.embedding : embedding // ignore: cast_nullable_to_non_nullable
 as FaceEmbedding,messge: freezed == messge ? _self.messge : messge // ignore: cast_nullable_to_non_nullable
 as String?,

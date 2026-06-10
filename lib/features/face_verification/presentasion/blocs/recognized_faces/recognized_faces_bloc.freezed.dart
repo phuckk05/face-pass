@@ -131,7 +131,7 @@ return success(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( List<FaceEmbedding> recognizedFaces)?  hasData,TResult Function( String? message,  List<FaceEmbedding> faces)?  error,TResult Function( List<FaceEmbedding> faces)?  loading,TResult Function()?  empty,TResult Function( FaceEmbedding embedding)?  success,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function( List<FaceEmbedding> recognizedFaces)?  hasData,TResult Function( String? message,  List<FaceEmbedding> faces)?  error,TResult Function( List<FaceEmbedding> faces)?  loading,TResult Function()?  empty,TResult Function( FaceEmbedding embedding,  String? message)?  success,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case RecognizedFacesInitialState() when initial != null:
 return initial();case RecognizedFacesHasDataState() when hasData != null:
@@ -139,7 +139,7 @@ return hasData(_that.recognizedFaces);case RecognizedFacesErrorState() when erro
 return error(_that.message,_that.faces);case RecognizedFacesLoadingState() when loading != null:
 return loading(_that.faces);case _RecognizedFacesEmptyState() when empty != null:
 return empty();case RecognizedFacesSuccessState() when success != null:
-return success(_that.embedding);case _:
+return success(_that.embedding,_that.message);case _:
   return orElse();
 
 }
@@ -157,7 +157,7 @@ return success(_that.embedding);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( List<FaceEmbedding> recognizedFaces)  hasData,required TResult Function( String? message,  List<FaceEmbedding> faces)  error,required TResult Function( List<FaceEmbedding> faces)  loading,required TResult Function()  empty,required TResult Function( FaceEmbedding embedding)  success,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function( List<FaceEmbedding> recognizedFaces)  hasData,required TResult Function( String? message,  List<FaceEmbedding> faces)  error,required TResult Function( List<FaceEmbedding> faces)  loading,required TResult Function()  empty,required TResult Function( FaceEmbedding embedding,  String? message)  success,}) {final _that = this;
 switch (_that) {
 case RecognizedFacesInitialState():
 return initial();case RecognizedFacesHasDataState():
@@ -165,7 +165,7 @@ return hasData(_that.recognizedFaces);case RecognizedFacesErrorState():
 return error(_that.message,_that.faces);case RecognizedFacesLoadingState():
 return loading(_that.faces);case _RecognizedFacesEmptyState():
 return empty();case RecognizedFacesSuccessState():
-return success(_that.embedding);}
+return success(_that.embedding,_that.message);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -179,7 +179,7 @@ return success(_that.embedding);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( List<FaceEmbedding> recognizedFaces)?  hasData,TResult? Function( String? message,  List<FaceEmbedding> faces)?  error,TResult? Function( List<FaceEmbedding> faces)?  loading,TResult? Function()?  empty,TResult? Function( FaceEmbedding embedding)?  success,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function( List<FaceEmbedding> recognizedFaces)?  hasData,TResult? Function( String? message,  List<FaceEmbedding> faces)?  error,TResult? Function( List<FaceEmbedding> faces)?  loading,TResult? Function()?  empty,TResult? Function( FaceEmbedding embedding,  String? message)?  success,}) {final _that = this;
 switch (_that) {
 case RecognizedFacesInitialState() when initial != null:
 return initial();case RecognizedFacesHasDataState() when hasData != null:
@@ -187,7 +187,7 @@ return hasData(_that.recognizedFaces);case RecognizedFacesErrorState() when erro
 return error(_that.message,_that.faces);case RecognizedFacesLoadingState() when loading != null:
 return loading(_that.faces);case _RecognizedFacesEmptyState() when empty != null:
 return empty();case RecognizedFacesSuccessState() when success != null:
-return success(_that.embedding);case _:
+return success(_that.embedding,_that.message);case _:
   return null;
 
 }
@@ -481,10 +481,11 @@ String toString() {
 
 
 class RecognizedFacesSuccessState implements RecognizedFacesState {
-  const RecognizedFacesSuccessState({required this.embedding});
+  const RecognizedFacesSuccessState({required this.embedding, required this.message});
   
 
  final  FaceEmbedding embedding;
+ final  String? message;
 
 /// Create a copy of RecognizedFacesState
 /// with the given fields replaced by the non-null parameter values.
@@ -496,16 +497,16 @@ $RecognizedFacesSuccessStateCopyWith<RecognizedFacesSuccessState> get copyWith =
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecognizedFacesSuccessState&&(identical(other.embedding, embedding) || other.embedding == embedding));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is RecognizedFacesSuccessState&&(identical(other.embedding, embedding) || other.embedding == embedding)&&(identical(other.message, message) || other.message == message));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,embedding);
+int get hashCode => Object.hash(runtimeType,embedding,message);
 
 @override
 String toString() {
-  return 'RecognizedFacesState.success(embedding: $embedding)';
+  return 'RecognizedFacesState.success(embedding: $embedding, message: $message)';
 }
 
 
@@ -516,7 +517,7 @@ abstract mixin class $RecognizedFacesSuccessStateCopyWith<$Res> implements $Reco
   factory $RecognizedFacesSuccessStateCopyWith(RecognizedFacesSuccessState value, $Res Function(RecognizedFacesSuccessState) _then) = _$RecognizedFacesSuccessStateCopyWithImpl;
 @useResult
 $Res call({
- FaceEmbedding embedding
+ FaceEmbedding embedding, String? message
 });
 
 
@@ -533,10 +534,11 @@ class _$RecognizedFacesSuccessStateCopyWithImpl<$Res>
 
 /// Create a copy of RecognizedFacesState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') $Res call({Object? embedding = null,}) {
+@pragma('vm:prefer-inline') $Res call({Object? embedding = null,Object? message = freezed,}) {
   return _then(RecognizedFacesSuccessState(
 embedding: null == embedding ? _self.embedding : embedding // ignore: cast_nullable_to_non_nullable
-as FaceEmbedding,
+as FaceEmbedding,message: freezed == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

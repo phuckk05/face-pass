@@ -23,6 +23,8 @@ class CameraCus extends StatelessWidget {
                     child: SizedBox(
                       width: controller!.value.previewSize!.height,
                       height: controller!.value.previewSize!.width,
+                      // width: double.infinity,
+                      // height: double.infinity,
                       child: CameraPreview(controller!),
                     ),
                   ),

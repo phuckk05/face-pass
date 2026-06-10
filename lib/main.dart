@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+import 'features/face_verification/domain/usecase/registed_face.dart';
 import 'features/face_verification/domain/usecase/resgister_user.dart';
 import 'features/face_verification/presentasion/blocs/recognized_faces/recognized_faces_bloc.dart';
 import 'features/face_verification/presentasion/blocs/recognizing_face/recognizing_face_bloc.dart';
@@ -43,6 +44,7 @@ Future<void> init() async {
   sl.registerLazySingleton(
     () => RegisterUserUseCase(recognizingRepository: sl()),
   );
+  sl.registerLazySingleton(() => RegistedFace(recognizedRepository: sl()));
 }
 
 void main() async {
@@ -56,7 +58,10 @@ void main() async {
       providers: [
         //Đăng kí bloc
         BlocProvider(
-          create: (_) => RecognizedFacesBloc(registerFaceUseCase: sl()),
+          create: (_) => RecognizedFacesBloc(
+            registerFaceUseCase: sl(),
+            registedFace: sl(),
+          ),
         ),
         BlocProvider(
           create: (_) => RecognizingFaceBloc(registerFaceUseCase: sl()),
@@ -75,6 +80,7 @@ class FacePass extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    context.read<RecognizedFacesBloc>().add(LoadRecognizedFacesEvent());
     return MaterialApp.router(
       // builder: DevicePreview.appBuilder,
       // useInheritedMediaQuery: true,

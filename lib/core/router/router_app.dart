@@ -2,16 +2,32 @@ import 'package:facepass/features/face_verification/presentasion/screens/camera_
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+import '../../features/face_verification/presentasion/screens/home_screen.dart';
 
+final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
+//path
 final String initialRoute = '/';
-final String cameraRoute = '/camera';
+final String homeRoute = '/home';
+final String cameraRoute = '/camera:index';
+//name
+final String homeRouteName = 'home';
+final String cameraRouteName = 'camera';
 final GoRouter router = GoRouter(
-  initialLocation: cameraRoute,
+  initialLocation: homeRoute,
   routes: [
     GoRoute(
+      path: homeRoute,
+      name: homeRouteName,
+      builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
       path: cameraRoute,
-      builder: (context, state) => const CameraScreen(),
+      name: cameraRouteName,
+      builder: (context, state) => CameraScreen(
+        index: state.pathParameters['index'] != null
+            ? int.parse(state.pathParameters['index']!)
+            : 0,
+      ),
     ),
   ],
 );

@@ -26,5 +26,6 @@ sealed class RecognizedFacesState with _$RecognizedFacesState {
   //6- trạng thái success khi thêm dữ liệu
   const factory RecognizedFacesState.success({
     required FaceEmbedding embedding,
+    required String? message,
   }) = RecognizedFacesSuccessState;
 }

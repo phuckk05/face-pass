@@ -11,15 +11,22 @@ class FacesRemoteDataSource {
 
   //lấy tất cả khuôn mặt đã được nhận diện từ database
   Future<List<FaceEmbeddingModel>> fetchRecognizedFaces() async {
-    final snapshot = await db.get();
-    if (snapshot.exists) {
-      final data = snapshot.value as Map<dynamic, dynamic>;
-      return data.values
-          .map(
-            (face) => FaceEmbeddingModel.fromJson(face as Map<String, dynamic>),
-          )
-          .toList();
-    } else {
+    try {
+      final snapshot = await db.get();
+      if (snapshot.exists) {
+        final data = snapshot.value as Map<Object?, Object?>;
+
+        return data.values.map((face) {
+          final faceMap = (face as Map<Object?, Object?>).map(
+            (key, value) => MapEntry(key.toString(), value),
+          );
+          return FaceEmbeddingModel.fromJson(faceMap);
+        }).toList();
+      } else {
+        return [];
+      }
+    } catch (e) {
+      debugPrint('Lỗi : $e');
       return [];
     }
   }
@@ -30,7 +37,7 @@ class FacesRemoteDataSource {
       await db.child(face.id).set(face.toJson());
       return true;
     } catch (e) {
-      debugPrint('Error adding recognized face: $e');
+      debugPrint('Lỗi khi thêm khuôn mặt đã nhận diện: $e');
       return false;
     }
   }

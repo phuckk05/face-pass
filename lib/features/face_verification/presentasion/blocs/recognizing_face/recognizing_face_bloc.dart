@@ -22,6 +22,7 @@ class RecognizingFaceBloc
     /* 2 */
     on<ProcessingFaceEvent>(_processFace);
     /*3 */
+    on<SimilaritySuccessEvent>(_similaritySuccess);
     on<CheckSimilarityEvent>(_checkProcessing);
     /*4*/
     on<UpdateFaceEmbedding>(_updateFaceEmbedding);
@@ -111,37 +112,27 @@ class RecognizingFaceBloc
     switch (event.index) {
       case 1:
         _currentEmbedding = _currentEmbedding!.copyWith(
-          vector1: _currentEmbedding!.vector1.isEmpty
-              ? event.embedding!
-              : _currentEmbedding!.vector1,
+          vector1: event.embedding!,
         );
         break;
       case 2:
         _currentEmbedding = _currentEmbedding!.copyWith(
-          vector2: _currentEmbedding!.vector2.isEmpty
-              ? event.embedding!
-              : _currentEmbedding!.vector2,
+          vector2: event.embedding!,
         );
         break;
       case 3:
         _currentEmbedding = _currentEmbedding!.copyWith(
-          vector3: _currentEmbedding!.vector3.isEmpty
-              ? event.embedding!
-              : _currentEmbedding!.vector3,
+          vector3: event.embedding!,
         );
         break;
       case 4:
         _currentEmbedding = _currentEmbedding!.copyWith(
-          vector4: _currentEmbedding!.vector4.isEmpty
-              ? event.embedding!
-              : _currentEmbedding!.vector4,
+          vector4: event.embedding!,
         );
         break;
       case 5:
         _currentEmbedding = _currentEmbedding!.copyWith(
-          vector5: _currentEmbedding!.vector5.isEmpty
-              ? event.embedding!
-              : _currentEmbedding!.vector5,
+          vector5: event.embedding!,
         );
         //cập nhật success luôn
         emit(
@@ -188,6 +179,18 @@ class RecognizingFaceBloc
       RecognizingFaceState.processingUpdate(
         embedding: tempFaceEmbedding,
         message: "Đang khởi tạo, vui lòng đợi...",
+      ),
+    );
+  }
+
+  void _similaritySuccess(
+    SimilaritySuccessEvent event,
+    Emitter<RecognizingFaceState> emit,
+  ) {
+    emit(
+      RecognizingFaceState.similaritySuccess(
+        embedding: event.embedding,
+        messge: event.message,
       ),
     );
   }
