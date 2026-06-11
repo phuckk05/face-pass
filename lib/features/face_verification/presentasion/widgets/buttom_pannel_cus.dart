@@ -45,6 +45,7 @@ class ButtomPannelCus extends StatelessWidget {
                   builder: (context, state) {
                     final isProcessing = state.maybeWhen(
                       processingUpdate: (embedding, message) => false,
+                      initial: (messge) => true,
                       similaritySuccess: (embedding, messge) => true,
                       processingErrol: (message) => true,
                       processing: (messge) => false,
@@ -53,7 +54,12 @@ class ButtomPannelCus extends StatelessWidget {
                       orElse: () => true,
                     );
                     final isCheckSuccess = state.maybeWhen(
+                      initial: (messge) => true,
                       similaritySuccess: (embedding, messge) => true,
+                      processing: (messge) => false,
+                      processingErrol: (message) => true,
+                      failed: (message) => true,
+
                       orElse: () => false,
                     );
                     return FilledButton(

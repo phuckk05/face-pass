@@ -1,6 +1,8 @@
 import 'package:facepass/core/router/router_app.dart';
+import 'package:facepass/features/face_verification/data/datasource/remote/attendance_datasource.dart';
 import 'package:facepass/features/face_verification/data/datasource/remote/faces_datasource.dart';
 import 'package:facepass/features/face_verification/data/datasource/remote/users_datasource.dart';
+import 'package:facepass/features/face_verification/data/repositories/attendance_repository_impl.dart';
 import 'package:facepass/features/face_verification/data/repositories/recognized_repository_impl.dart';
 import 'package:facepass/features/face_verification/data/repositories/recognizing_repository_impl.dart';
 import 'package:facepass/features/face_verification/domain/repositories/recognized_repository.dart';
@@ -12,8 +14,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
 
+import 'features/face_verification/domain/repositories/attendace_repository.dart';
+import 'features/face_verification/domain/usecase/push_attendance.dart';
 import 'features/face_verification/domain/usecase/registed_face.dart';
 import 'features/face_verification/domain/usecase/resgister_user.dart';
+import 'features/face_verification/presentasion/blocs/attendance/attendance_bloc.dart';
 import 'features/face_verification/presentasion/blocs/recognized_faces/recognized_faces_bloc.dart';
 import 'features/face_verification/presentasion/blocs/recognizing_face/recognizing_face_bloc.dart';
 import 'features/face_verification/presentasion/cubit/camera_process_cubit.dart';
@@ -26,6 +31,7 @@ Future<void> init() async {
     () => FacesRemoteDataSource(),
   );
   sl.registerLazySingleton<UserRemoteDatasource>(() => UserRemoteDatasource());
+  sl.registerLazySingleton<AttendanceDatasource>(() => AttendanceDatasource());
 
   // repository
   sl.registerLazySingleton<RecognizingRepository>(
@@ -34,6 +40,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<RecognizedRepository>(
     () => RecognizedRepositoryImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<AttendaceRepository>(
+    () => AttendanceRepositoryImpl(remoteDataSource: sl()),
   );
 
   // usecase
@@ -45,6 +54,7 @@ Future<void> init() async {
     () => RegisterUserUseCase(recognizingRepository: sl()),
   );
   sl.registerLazySingleton(() => RegistedFace(recognizedRepository: sl()));
+  sl.registerLazySingleton(() => PushAttendance(repository: sl()));
 }
 
 void main() async {
@@ -67,6 +77,7 @@ void main() async {
           create: (_) => RecognizingFaceBloc(registerFaceUseCase: sl()),
         ),
         BlocProvider(create: (_) => UserBloc(registerUserUseCase: sl())),
+        BlocProvider(create: (_) => AttendanceBloc(pushAttendance: sl())),
         //Đăng kí cubit
         BlocProvider(create: (_) => CameraProcessCubit()),
       ],

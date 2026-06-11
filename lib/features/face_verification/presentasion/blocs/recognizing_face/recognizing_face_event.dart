@@ -38,9 +38,15 @@ class PushToDatabaseEvent extends RecognizingFaceEvent {
 
 //xác minh độ tương đồng thành công
 class SimilaritySuccessEvent extends RecognizingFaceEvent {
-  final FaceEmbedding embedding;
+  final FaceEmbedding? embedding;
   final String? message;
   SimilaritySuccessEvent({required this.embedding, this.message});
+}
+
+//xự kiện bắt đầu nhận diện khuôn mặt chp phần chấm công
+class ProcessingInitEvent extends RecognizingFaceEvent {
+  final String message;
+  ProcessingInitEvent({required this.message});
 }
 // class ProcessSuccessFaceEvent extends RecognizingFaceEvent {
 //   final List<double> faceEmbedding;

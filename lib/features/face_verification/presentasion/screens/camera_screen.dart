@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:camera/camera.dart';
 import 'package:facepass/features/face_verification/domain/entities/face_embedding%20.dart';
+import 'package:facepass/features/face_verification/presentasion/blocs/attendance/attendance_bloc.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/recognized_faces/recognized_faces_bloc.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/register_user/user_bloc.dart';
 import 'package:flutter/foundation.dart';
@@ -11,6 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
 import '../../../../core/utils/camera_utils.dart';
+import '../../domain/entities/attendance.dart';
 import '../blocs/recognizing_face/recognizing_face_bloc.dart';
 import '../cubit/camera_process_cubit.dart';
 import '../widgets/buttom_pannel_cus.dart';
@@ -54,7 +56,7 @@ class _CameraScreenState extends State<CameraScreen> {
   void initState() {
     //giả lập đã call trước
     context.read<UserBloc>().add(GetUserByIdEvent(id: "1780664304466"));
-
+    context.read<RecognizingFaceBloc>().add(InitProcessFaceEvent());
     _initializeAll();
     super.initState();
   }
@@ -189,24 +191,43 @@ class _CameraScreenState extends State<CameraScreen> {
       return;
     }
     context.read<RecognizingFaceBloc>().add(
-      CheckSimilarityEvent(message: 'Đang kiểm tra độ tương đồng...'),
+      ProcessingInitEvent(message: 'Đang bắt đầu nhận diện khuôn mặt'),
     );
 
     final image = await _controller!.takePicture();
     final newEmbedding = await _processFaceRecognition(image.path);
 
     if (newEmbedding == null || newEmbedding.isEmpty) {
+      context.read<RecognizingFaceBloc>().add(
+        CheckSimilarityEvent(
+          message: 'Không phát hiện khuôn mặt, vui lòng thử lại',
+        ),
+      );
       return;
     }
     for (var face in recognizedFaces as List<FaceEmbedding>) {
-      if (CameraUtils.cosineSimilarity(newEmbedding, face.vector1) > 0.8) {
+      final similarity = CameraUtils.cosineSimilarity(
+        newEmbedding,
+        face.vector1,
+      );
+      if (similarity > 0.8) {
+        final attendance = Attendance(
+          userId: '1780664304466',
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          checkedAt: DateTime.now(),
+          type: AttendanceType.checkIn,
+          status: AttendanceStatus.onTime,
+          similarity: similarity,
+        );
+        context.read<AttendanceBloc>().add(
+          AddAttendanceEvent(attendance: attendance),
+        );
+      } else {
         context.read<RecognizingFaceBloc>().add(
-          SimilaritySuccessEvent(
-            embedding: face,
-            message: 'Đã nhận diện khuôn mặt thành công',
+          CheckSimilarityEvent(
+            message: 'Khuôn mặt không khớp, vui lòng thử lại',
           ),
         );
-        return;
       }
     }
   }
@@ -262,14 +283,15 @@ class _CameraScreenState extends State<CameraScreen> {
     },
   );
   Widget buildListener({required Widget child}) {
-    return BlocListener<RecognizingFaceBloc, RecognizingFaceState>(
+    return BlocListener<AttendanceBloc, AttendanceState>(
       listener: (context, state) {
         state.maybeWhen(
-          success: (embedding, message) {
-            context.read<RecognizedFacesBloc>().add(
-              AddRecognizedFaceEvent(embedding),
-            );
-          },
+          success: (message) => context.read<RecognizingFaceBloc>().add(
+            SimilaritySuccessEvent(embedding: null, message: message),
+          ),
+          failed: (message) => context.read<RecognizingFaceBloc>().add(
+            CheckSimilarityEvent(message: message),
+          ),
           orElse: () {},
         );
       },

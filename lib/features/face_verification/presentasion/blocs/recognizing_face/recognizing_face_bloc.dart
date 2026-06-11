@@ -30,6 +30,16 @@ class RecognizingFaceBloc
     on<CreateTempFaceEmbedding>(_createTempFaceEmbedding);
     /*6 */
     on<StopVerifyingEvent>(_stopVerifying);
+    /*7 */
+    on<ProcessingInitEvent>(_processFaceFailed);
+  }
+
+  //nhận diện khuôn mặt thất bại, dừng quá trình và trả về lỗi
+  void _processFaceFailed(
+    ProcessingInitEvent event,
+    Emitter<RecognizingFaceState> emit,
+  ) {
+    emit(RecognizingFaceState.processing(messge: event.message));
   }
 
   void _stopVerifying(
@@ -51,11 +61,11 @@ class RecognizingFaceBloc
       ),
     );
     //bắn sự kiện đang xử lý
-    emit(
-      const RecognizingFaceState.processing(
-        messge: "Đang nhận diện khuôn mặt...",
-      ),
-    );
+    // emit(
+    //   const RecognizingFaceState.processing(
+    //     messge: "Đang nhận diện khuôn mặt...",
+    //   ),
+    // );
   }
 
   //process face event

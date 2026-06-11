@@ -30,7 +30,7 @@ sealed class RecognizingFaceState with _$RecognizingFaceState {
   }) = RecognizingFaceSuccess;
   //xác minh độ tương đồng thành công
   const factory RecognizingFaceState.similaritySuccess({
-    required FaceEmbedding embedding,
+    required FaceEmbedding? embedding,
     required String? messge,
   }) = RecognizingFaceSimilaritySuccess;
 }
