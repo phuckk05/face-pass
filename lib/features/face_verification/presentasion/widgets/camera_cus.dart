@@ -15,21 +15,15 @@ class CameraCus extends StatelessWidget {
       decoration: BoxDecoration(color: Colors.grey[200]?.withOpacity(0.5)),
       child: ClipRRect(
         child: controller != null && controller!.value.isInitialized
-            ? Row(
-                children: [
-                  Expanded(child: container),
-                  FittedBox(
-                    fit: BoxFit.cover,
-                    child: SizedBox(
-                      width: controller!.value.previewSize!.height,
-                      height: controller!.value.previewSize!.width,
-                      // width: double.infinity,
-                      // height: double.infinity,
-                      child: CameraPreview(controller!),
-                    ),
-                  ),
-                  Expanded(child: container),
-                ],
+            ? FittedBox(
+                fit: BoxFit.cover,
+                child: SizedBox(
+                  width: controller!.value.previewSize!.height,
+                  height: controller!.value.previewSize!.width,
+                  // width: double.infinity,
+                  // height: double.infinity,
+                  child: CameraPreview(controller!),
+                ),
               )
             : const Center(child: CircularProgressIndicator()),
       ),
