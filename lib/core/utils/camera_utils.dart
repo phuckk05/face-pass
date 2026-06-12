@@ -81,4 +81,19 @@ class CameraUtils {
     final dt = DateTime.parse(dateTime);
     return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}:${dt.second.toString().padLeft(2, '0')} ${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
   }
+
+  //chuyển đổi datetime sang hh:mm:ss
+  static String formatTime(String dateTime) {
+    final dt = DateTime.parse(dateTime);
+    return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}:${dt.second.toString().padLeft(2, '0')}';
+  }
+
+  //hàm tính thời gian đi trễ so với giờ quy định (8h00)
+  static String calculateLateTime(String dateTime) {
+    final dt = DateTime.parse(dateTime);
+    final lateDuration =
+        dt.difference(DateTime(dt.year, dt.month, dt.day, 8, 0));
+    if (lateDuration.isNegative) return '0 phút';
+    return '${lateDuration.inMinutes} phút';
+  }
 }

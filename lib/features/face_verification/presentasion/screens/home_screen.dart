@@ -76,7 +76,7 @@ class HomeScreen extends StatelessWidget {
                   );
                 },
                 child: const Text(
-                  'Nhận diện khuôn mặt',
+                  'Chấm công',
                   style: TextStyle(fontSize: 16, color: Colors.white),
                 ),
               ),
@@ -136,7 +136,9 @@ class HomeScreen extends StatelessWidget {
                   ),
                   backgroundColor: const Color(0xFF2d6a4f),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  context.pushNamed(timelineRouteName);
+                },
                 child: const Text(
                   'Timeline đi trễ',
                   style: TextStyle(fontSize: 16, color: Colors.white),
