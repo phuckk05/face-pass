@@ -18,4 +18,4 @@ class Attendance {
 
 enum AttendanceType { checkIn, checkOut }
 
-enum AttendanceStatus { onTime, late, absent }
+enum AttendanceStatus { onTime, late, absent, early }

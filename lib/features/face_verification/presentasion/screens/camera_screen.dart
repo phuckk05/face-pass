@@ -13,6 +13,7 @@ import 'package:tflite_flutter/tflite_flutter.dart';
 
 import '../../../../core/utils/camera_utils.dart';
 import '../../domain/entities/attendance.dart';
+import '../blocs/attendance/attendance_bloc.dart';
 import '../blocs/recognizing_face/recognizing_face_bloc.dart';
 import '../cubit/camera_process_cubit.dart';
 import '../widgets/buttom_pannel_cus.dart';
@@ -211,17 +212,7 @@ class _CameraScreenState extends State<CameraScreen> {
         face.vector1,
       );
       if (similarity > 0.8) {
-        final attendance = Attendance(
-          userId: '1780664304466',
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          checkedAt: DateTime.now(),
-          type: AttendanceType.checkIn,
-          status: AttendanceStatus.onTime,
-          similarity: similarity,
-        );
-        context.read<AttendanceBloc>().add(
-          AddAttendanceEvent(attendance: attendance),
-        );
+        _checkInOut(face.userId, similarity);
       } else {
         context.read<RecognizingFaceBloc>().add(
           CheckSimilarityEvent(
@@ -230,6 +221,85 @@ class _CameraScreenState extends State<CameraScreen> {
         );
       }
     }
+  }
+
+  //hàm kiểm tra user đã checkin hay chưa, nếu đã check in rồi thì sẽ check out
+  void _checkInOut(String userId, double similarity) {
+    final attendanceBloc = context.read<AttendanceBloc>();
+    final recognizingBloc = context.read<RecognizingFaceBloc>();
+
+    final attendances = attendanceBloc.state.maybeWhen(
+      (data, status, message) => data,
+      orElse: () => [],
+    );
+
+    debugPrint('Danh sách chấm công hiện tại: ${attendances.length} bản ghi');
+    final now = DateTime.now();
+
+    // Record hôm nay của user hiện tại
+    final userRecords = attendances.where((record) {
+      return record.userId == userId &&
+          record.checkedAt.year == now.year &&
+          record.checkedAt.month == now.month &&
+          record.checkedAt.day == now.day;
+    }).toList();
+    // debugPrint('Record của user hôm nay: ${userRecords.first.type} bản ghi');
+
+    //giả sử thời bắt đầu làm việc là 8h sáng
+    final workStartTime = DateTime(now.year, now.month, now.day, 8);
+    //giả sử thời kết thúc làm việc là 5h chiều
+    final workEndTime = DateTime(now.year, now.month, now.day, 17);
+
+    // Đã checkout rồi
+    final hasCheckedOut = userRecords.any(
+      (e) => e.type == AttendanceType.checkOut,
+    );
+
+    if (hasCheckedOut) {
+      recognizingBloc.add(
+        CheckSimilarityEvent(message: 'Bạn đã check out hôm nay rồi'),
+      );
+      return;
+    }
+
+    // Đã checkin nhưng chưa checkout
+    final hasCheckedIn = userRecords.any(
+      (e) => e.type == AttendanceType.checkIn,
+    );
+
+    if (hasCheckedIn) {
+      final attendance = Attendance(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        userId: userId,
+        checkedAt: now,
+        type: AttendanceType.checkOut,
+        status: now.isBefore(workEndTime)
+            ? AttendanceStatus.early
+            : AttendanceStatus.onTime,
+        similarity: similarity,
+      );
+
+      attendanceBloc.add(AddAttendanceEvent(attendance: attendance));
+      recognizingBloc.add(
+        CheckSimilarityEvent(message: 'Check out thành công'),
+      );
+      return;
+    }
+
+    // Chưa có record thì checkint
+    final attendance = Attendance(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      userId: userId,
+      checkedAt: now,
+      type: AttendanceType.checkIn,
+      status: now.isAfter(workStartTime)
+          ? AttendanceStatus.late
+          : AttendanceStatus.onTime,
+      similarity: similarity,
+    );
+
+    attendanceBloc.add(AddAttendanceEvent(attendance: attendance));
+    recognizingBloc.add(CheckSimilarityEvent(message: 'Check in thành công'));
   }
 
   ElevatedButton elevatedButton({
@@ -285,15 +355,11 @@ class _CameraScreenState extends State<CameraScreen> {
   Widget buildListener({required Widget child}) {
     return BlocListener<AttendanceBloc, AttendanceState>(
       listener: (context, state) {
-        state.maybeWhen(
-          success: (message) => context.read<RecognizingFaceBloc>().add(
-            SimilaritySuccessEvent(embedding: null, message: message),
-          ),
-          failed: (message) => context.read<RecognizingFaceBloc>().add(
-            CheckSimilarityEvent(message: message),
-          ),
-          orElse: () {},
-        );
+        state.when((data, status, message) {
+          context.read<RecognizingFaceBloc>().add(
+            StopVerifyingEvent(message: message ?? 'Đã dừng xử lý'),
+          );
+        });
       },
       child: BlocListener<RecognizedFacesBloc, RecognizedFacesState>(
         listener: (context, state) {
@@ -322,8 +388,8 @@ class _CameraScreenState extends State<CameraScreen> {
             onPressed: () => Navigator.of(context).pop(),
           ),
           automaticallyImplyLeading: false,
-          title: const Text(
-            'Đăng ký khuôn mặt',
+          title: Text(
+            widget.index == 1 ? 'Đăng ký khuôn mặt' : 'Chấm công',
             style: TextStyle(color: Colors.white),
           ),
           backgroundColor: const Color(0xFF2d6a4f),

@@ -75,4 +75,10 @@ class CameraUtils {
 
     return List<double>.from(output[0]);
   }
+
+  //chuyển đổi datetime sang hh:mm:ss DD/MM/YYYY
+  static String formatDateTime(String dateTime) {
+    final dt = DateTime.parse(dateTime);
+    return '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}:${dt.second.toString().padLeft(2, '0')} ${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}';
+  }
 }

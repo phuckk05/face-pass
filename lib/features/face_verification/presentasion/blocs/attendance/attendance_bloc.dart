@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 import '../../../domain/entities/attendance.dart';
-import '../../../domain/usecase/push_attendance.dart';
+import '../../../domain/usecase/attendance_uc.dart';
 
 part 'attendance_event.dart';
 part 'attendance_state.dart';
@@ -11,7 +11,7 @@ part 'attendance_bloc.freezed.dart';
 class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   final PushAttendance pushAttendance;
   AttendanceBloc({required this.pushAttendance})
-    : super(AttendanceState.initial(message: null)) {
+    : super(AttendanceState(status: AttendanceStateStatus.initial, data: [])) {
     /* 1 */
     on<AddAttendanceEvent>(_addAttendance);
     /* 2 */
@@ -23,18 +23,32 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     AddAttendanceEvent event,
     Emitter<AttendanceState> emit,
   ) async {
-    emit(AttendanceState.loading(message: 'Đang thêm bản ghi chấm công...'));
+    emit(state.copyWith(status: AttendanceStateStatus.loading));
     try {
       final isSuccess = await pushAttendance.addAttendance(event.attendance);
       if (isSuccess) {
         emit(
-          AttendanceState.success(message: 'Thêm bản ghi chấm công thành công'),
+          state.copyWith(
+            status: AttendanceStateStatus.success,
+            data: [...state.data, event.attendance],
+            message: 'Chấm công thành công',
+          ),
         );
       } else {
-        emit(AttendanceState.failed(message: 'Lỗi khi thêm bản ghi chấm công'));
+        emit(
+          state.copyWith(
+            status: AttendanceStateStatus.error,
+            message: 'Chấm công thất bại',
+          ),
+        );
       }
     } catch (e) {
-      emit(AttendanceState.failed(message: 'Lỗi khi thêm bản ghi chấm công'));
+      emit(
+        state.copyWith(
+          status: AttendanceStateStatus.error,
+          message: 'Đã xảy ra lỗi',
+        ),
+      );
     }
   }
 
@@ -43,12 +57,23 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     FetchAttendancesEvent event,
     Emitter<AttendanceState> emit,
   ) async {
-    emit(AttendanceState.loading(message: 'Đang tải danh sách chấm công...'));
+    emit(state.copyWith(status: AttendanceStateStatus.loading, data: []));
     try {
       final attendances = await pushAttendance.getAttendances();
-      emit(AttendanceState.successHasData(attendances: attendances));
+      emit(
+        state.copyWith(
+          status: AttendanceStateStatus.success,
+          data: attendances,
+        ),
+      );
     } catch (e) {
-      emit(AttendanceState.failed(message: 'Lỗi khi tải danh sách chấm công'));
+      emit(
+        state.copyWith(
+          status: AttendanceStateStatus.error,
+          message: 'Đã xảy ra lỗi',
+          data: [],
+        ),
+      );
     }
   }
 }

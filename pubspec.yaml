@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ^3.11.3
+  sdk: ">=3.3.0 <4.0.0"
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -57,14 +57,21 @@ dependencies:
   camera: ^0.11.4
   video_player: ^2.11.1
   tflite_flutter: ^0.11.0
-  image: ^4.5.4
-  path_provider: ^2.1.0
+  image: ^4.3.0
 
 
   google_mlkit_face_detection: ^0.13.1
   freezed_annotation: ^3.1.0
   json_annotation: ^4.8.1  
   get_it: ^9.2.1
+  
+
+  #ecxel
+  excel: ^4.0.6
+  path_provider: ^2.1.5
+  permission_handler: ^11.3.1
+  open_file: ^3.5.10
+
 
 dev_dependencies:
   flutter_test:

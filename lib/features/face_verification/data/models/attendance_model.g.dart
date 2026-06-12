@@ -35,4 +35,5 @@ const _$AttendanceStatusEnumMap = {
   AttendanceStatus.onTime: 'onTime',
   AttendanceStatus.late: 'late',
   AttendanceStatus.absent: 'absent',
+  AttendanceStatus.early: 'early',
 };
