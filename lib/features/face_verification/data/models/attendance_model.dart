@@ -14,6 +14,8 @@ abstract class AttendanceModel with _$AttendanceModel {
     required AttendanceType type,
     required AttendanceStatus status,
     required double similarity,
+    required String gpsLocation,
+    required String ipAddress,
   }) = _AttendanceModel;
 
   factory AttendanceModel.fromJson(Map<String, dynamic> json) =>
@@ -24,22 +26,26 @@ abstract class AttendanceModel with _$AttendanceModel {
 
 extension AttendanceModelX on AttendanceModel {
   Attendance toEntity() => Attendance(
-    id: id,
-    userId: userId,
-    checkedAt: checkedAt,
-    type: type,
-    status: status,
-    similarity: similarity,
-  );
+        id: id,
+        userId: userId,
+        checkedAt: checkedAt,
+        type: type,
+        status: status,
+        similarity: similarity,
+        gpsLocation: gpsLocation,
+        ipAddress: ipAddress,
+      );
 }
 
 extension AttendanceX on Attendance {
   AttendanceModel toModel() => AttendanceModel(
-    id: id,
-    userId: userId,
-    checkedAt: checkedAt,
-    type: type,
-    status: status,
-    similarity: similarity,
-  );
+        id: id,
+        userId: userId,
+        checkedAt: checkedAt,
+        type: type,
+        status: status,
+        similarity: similarity,
+        gpsLocation: gpsLocation,
+        ipAddress: ipAddress,
+      );
 }

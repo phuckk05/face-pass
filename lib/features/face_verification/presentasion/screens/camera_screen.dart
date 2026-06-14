@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:camera/camera.dart';
+import 'package:facepass/core/utils/permission_utils.dart';
 import 'package:facepass/features/face_verification/domain/entities/face_embedding%20.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/attendance/attendance_bloc.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/recognized_faces/recognized_faces_bloc.dart';
@@ -192,18 +193,18 @@ class _CameraScreenState extends State<CameraScreen> {
       return;
     }
     context.read<RecognizingFaceBloc>().add(
-      ProcessingInitEvent(message: 'Đang bắt đầu nhận diện khuôn mặt'),
-    );
+          ProcessingInitEvent(message: 'Đang bắt đầu nhận diện khuôn mặt'),
+        );
 
     final image = await _controller!.takePicture();
     final newEmbedding = await _processFaceRecognition(image.path);
 
     if (newEmbedding == null || newEmbedding.isEmpty) {
       context.read<RecognizingFaceBloc>().add(
-        CheckSimilarityEvent(
-          message: 'Không phát hiện khuôn mặt, vui lòng thử lại',
-        ),
-      );
+            CheckSimilarityEvent(
+              message: 'Không phát hiện khuôn mặt, vui lòng thử lại',
+            ),
+          );
       return;
     }
     for (var face in recognizedFaces as List<FaceEmbedding>) {
@@ -215,16 +216,16 @@ class _CameraScreenState extends State<CameraScreen> {
         _checkInOut(face.userId, similarity);
       } else {
         context.read<RecognizingFaceBloc>().add(
-          CheckSimilarityEvent(
-            message: 'Khuôn mặt không khớp, vui lòng thử lại',
-          ),
-        );
+              CheckSimilarityEvent(
+                message: 'Khuôn mặt không khớp, vui lòng thử lại',
+              ),
+            );
       }
     }
   }
 
   //hàm kiểm tra user đã checkin hay chưa, nếu đã check in rồi thì sẽ check out
-  void _checkInOut(String userId, double similarity) {
+  void _checkInOut(String userId, double similarity) async {
     final attendanceBloc = context.read<AttendanceBloc>();
     final recognizingBloc = context.read<RecognizingFaceBloc>();
 
@@ -262,6 +263,9 @@ class _CameraScreenState extends State<CameraScreen> {
       return;
     }
 
+    final gpsLocation = await PermissionUtils.getGPSLocation();
+    final ipAddress = await PermissionUtils.getIpAddress();
+
     // Đã checkin nhưng chưa checkout
     final hasCheckedIn = userRecords.any(
       (e) => e.type == AttendanceType.checkIn,
@@ -269,15 +273,18 @@ class _CameraScreenState extends State<CameraScreen> {
 
     if (hasCheckedIn) {
       final attendance = Attendance(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        userId: userId,
-        checkedAt: now,
-        type: AttendanceType.checkOut,
-        status: now.isBefore(workEndTime)
-            ? AttendanceStatus.early
-            : AttendanceStatus.onTime,
-        similarity: similarity,
-      );
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          userId: userId,
+          checkedAt: now,
+          type: AttendanceType.checkOut,
+          status: now.isBefore(workEndTime)
+              ? AttendanceStatus.early
+              : AttendanceStatus.onTime,
+          similarity: similarity,
+          gpsLocation: gpsLocation.latitude.toString() +
+              ',' +
+              gpsLocation.longitude.toString(),
+          ipAddress: ipAddress);
 
       attendanceBloc.add(AddAttendanceEvent(attendance: attendance));
       recognizingBloc.add(
@@ -288,15 +295,18 @@ class _CameraScreenState extends State<CameraScreen> {
 
     // Chưa có record thì checkint
     final attendance = Attendance(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      userId: userId,
-      checkedAt: now,
-      type: AttendanceType.checkIn,
-      status: now.isAfter(workStartTime)
-          ? AttendanceStatus.late
-          : AttendanceStatus.onTime,
-      similarity: similarity,
-    );
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        userId: userId,
+        checkedAt: now,
+        type: AttendanceType.checkIn,
+        status: now.isAfter(workStartTime)
+            ? AttendanceStatus.late
+            : AttendanceStatus.onTime,
+        similarity: similarity,
+        gpsLocation: gpsLocation.latitude.toString() +
+            ',' +
+            gpsLocation.longitude.toString(),
+        ipAddress: ipAddress);
 
     attendanceBloc.add(AddAttendanceEvent(attendance: attendance));
     recognizingBloc.add(CheckSimilarityEvent(message: 'Check in thành công'));
@@ -324,41 +334,41 @@ class _CameraScreenState extends State<CameraScreen> {
     );
   }
 
-  BlocBuilder<RecognizingFaceBloc, RecognizingFaceState>
-  get recognizingBloc => BlocBuilder<RecognizingFaceBloc, RecognizingFaceState>(
-    buildWhen: (previous, current) {
-      if (current is RecognizingFaceProcessingUpdate) {
-        debugPrint("DEBUG: ${current.embedding.toString()}");
-      }
-      return previous != current;
-    },
-    builder: (context, state) {
-      return state.maybeWhen(
-        initial: (messge) =>
-            output(messge ?? 'Vui lòng cho khuôn mặt vào khung để nhận diện'),
-        processingErrol: (message) => output(message),
-        processingUpdate: (embedding, message) {
-          debugPrint(
-            '${embedding.vector1.length} ${embedding.vector2.length} ${embedding.vector3.length} ${embedding.vector4.length} ${embedding.vector5.length}',
-          );
-          return output(message ?? 'Vui lòng đợi, đang xử lý...');
+  BlocBuilder<RecognizingFaceBloc, RecognizingFaceState> get recognizingBloc =>
+      BlocBuilder<RecognizingFaceBloc, RecognizingFaceState>(
+        buildWhen: (previous, current) {
+          if (current is RecognizingFaceProcessingUpdate) {
+            debugPrint("DEBUG: ${current.embedding.toString()}");
+          }
+          return previous != current;
         },
-        similaritySuccess: (embedding, message) =>
-            output(message ?? 'Đã nhận diện khuôn mặt thành công'),
-        success: (embedding, message) => output(message!),
-        failed: (message) => output(message),
-        processing: (message) => output(message),
-        orElse: () => output('No data'),
+        builder: (context, state) {
+          return state.maybeWhen(
+            initial: (messge) => output(
+                messge ?? 'Vui lòng cho khuôn mặt vào khung để nhận diện'),
+            processingErrol: (message) => output(message),
+            processingUpdate: (embedding, message) {
+              debugPrint(
+                '${embedding.vector1.length} ${embedding.vector2.length} ${embedding.vector3.length} ${embedding.vector4.length} ${embedding.vector5.length}',
+              );
+              return output(message ?? 'Vui lòng đợi, đang xử lý...');
+            },
+            similaritySuccess: (embedding, message) =>
+                output(message ?? 'Đã nhận diện khuôn mặt thành công'),
+            success: (embedding, message) => output(message!),
+            failed: (message) => output(message),
+            processing: (message) => output(message),
+            orElse: () => output('No data'),
+          );
+        },
       );
-    },
-  );
   Widget buildListener({required Widget child}) {
     return BlocListener<AttendanceBloc, AttendanceState>(
       listener: (context, state) {
         state.when((data, status, message) {
           context.read<RecognizingFaceBloc>().add(
-            StopVerifyingEvent(message: message ?? 'Đã dừng xử lý'),
-          );
+                StopVerifyingEvent(message: message ?? 'Đã dừng xử lý'),
+              );
         });
       },
       child: BlocListener<RecognizedFacesBloc, RecognizedFacesState>(

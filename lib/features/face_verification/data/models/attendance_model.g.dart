@@ -14,6 +14,8 @@ _AttendanceModel _$AttendanceModelFromJson(Map<String, dynamic> json) =>
       type: $enumDecode(_$AttendanceTypeEnumMap, json['type']),
       status: $enumDecode(_$AttendanceStatusEnumMap, json['status']),
       similarity: (json['similarity'] as num).toDouble(),
+      gpsLocation: json['gpsLocation'] as String,
+      ipAddress: json['ipAddress'] as String,
     );
 
 Map<String, dynamic> _$AttendanceModelToJson(_AttendanceModel instance) =>
@@ -24,6 +26,8 @@ Map<String, dynamic> _$AttendanceModelToJson(_AttendanceModel instance) =>
       'type': _$AttendanceTypeEnumMap[instance.type]!,
       'status': _$AttendanceStatusEnumMap[instance.status]!,
       'similarity': instance.similarity,
+      'gpsLocation': instance.gpsLocation,
+      'ipAddress': instance.ipAddress,
     };
 
 const _$AttendanceTypeEnumMap = {

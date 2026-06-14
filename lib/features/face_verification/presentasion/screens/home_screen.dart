@@ -1,3 +1,4 @@
+import 'package:facepass/core/utils/permission_utils.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/attendance/attendance_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,20 +6,25 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/router/router_app.dart';
 import '../../../../core/utils/excel_services.dart';
-import '../blocs/recognized_faces/recognized_faces_bloc.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+  void permissionDenied(BuildContext context) {
+    PermissionUtils.requestLocationPermissions().then((granted) {
+      if (!granted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Vui lòng cấp quyền vị trí để sử dụng ứng dụng'),
+          ),
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    debugPrint(
-      context.read<RecognizedFacesBloc>().state.maybeWhen(
-            hasData: (recognizedFaces) =>
-                'Has data: ${recognizedFaces.length} faces',
-            orElse: () => 'No data available',
-          ),
-    );
+    permissionDenied(context);
     return Scaffold(
       appBar: AppBar(
         title: Text('Các chức năng', style: TextStyle(color: Colors.white)),

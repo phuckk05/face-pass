@@ -33,6 +33,8 @@ class ExcelServices {
                         : a.status == AttendanceStatus.absent
                             ? 'Vắng mặt'
                             : 'Sớm',
+                'Vị trí': a.gpsLocation,
+                'IP Address': a.ipAddress
               })
           .toList();
 

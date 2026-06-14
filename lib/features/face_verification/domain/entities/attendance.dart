@@ -6,6 +6,11 @@ class Attendance {
   final AttendanceStatus status;
   final double similarity;
 
+  //thêm gps
+  final String gpsLocation;
+  //thêm ip address
+  final String ipAddress;
+
   const Attendance({
     required this.id,
     required this.userId,
@@ -13,6 +18,8 @@ class Attendance {
     required this.type,
     required this.status,
     required this.similarity,
+    required this.gpsLocation,
+    required this.ipAddress,
   });
 }
 
