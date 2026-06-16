@@ -12,7 +12,7 @@ part 'user_state.dart';
 class UserBloc extends Bloc<UserEvent, UserState> {
   final RegisterUserUseCase registerUserUseCase;
   UserBloc({required this.registerUserUseCase})
-    : super(const UserState.initial()) {
+      : super(const UserState.initial()) {
     on<RegisterUserEvent>(_registerUser);
     on<GetUserByIdEvent>(_getUserById);
   }

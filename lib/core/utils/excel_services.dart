@@ -21,9 +21,8 @@ class ExcelServices {
                 'Mã NV': a.userId,
                 'Ngày':
                     '${a.checkedAt.day}/${a.checkedAt.month}/${a.checkedAt.year}',
-                'Thời gian': a.checkedAt.hour.toString().padLeft(2, '0') +
-                    ':' +
-                    a.checkedAt.minute.toString().padLeft(2, '0'),
+                'Thời gian':
+                    '${a.checkedAt.hour.toString().padLeft(2, '0')}:${a.checkedAt.minute.toString().padLeft(2, '0')}',
                 ' Loại':
                     a.type == AttendanceType.checkIn ? 'Check-in' : 'Check-out',
                 'Trạng thái': a.status == AttendanceStatus.onTime

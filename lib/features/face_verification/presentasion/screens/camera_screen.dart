@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:camera/camera.dart';
-import 'package:facepass/core/utils/permission_utils.dart';
-import 'package:facepass/features/face_verification/domain/entities/face_embedding%20.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/attendance/attendance_bloc.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/recognized_faces/recognized_faces_bloc.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/register_user/user_bloc.dart';
@@ -10,11 +8,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:tflite_flutter/tflite_flutter.dart';
 
 import '../../../../core/utils/camera_utils.dart';
-import '../../domain/entities/attendance.dart';
-import '../blocs/attendance/attendance_bloc.dart';
+import '../../domain/entities/face_embedding .dart';
 import '../blocs/recognizing_face/recognizing_face_bloc.dart';
 import '../cubit/camera_process_cubit.dart';
 import '../widgets/buttom_pannel_cus.dart';
@@ -23,8 +19,11 @@ import '../widgets/date_chip_cus.dart';
 import '../widgets/face_oval_cus.dart';
 import '../widgets/live_chip_cus.dart';
 
+/* 
+ * Lớp dịch vụ quản lý mô hình TFLite FaceNet 
+ * Khởi tạo Background Isolate Worker để duy trì mô hình, tránh việc phải load lại nhiều lần
+ */
 class FaceNetService {
-  Interpreter? interpreter;
   Uint8List? modelBytes;
   bool _isLoaded = false;
 
@@ -32,7 +31,7 @@ class FaceNetService {
     try {
       final byteData = await rootBundle.load('assets/models/facenet.tflite');
       modelBytes = byteData.buffer.asUint8List();
-      interpreter = Interpreter.fromBuffer(modelBytes!);
+      await FaceRecognitionWorker.init(modelBytes!, RootIsolateToken.instance!);
       _isLoaded = true;
     } catch (e) {
       debugPrint('Model load failed: $e');
@@ -100,21 +99,22 @@ class _CameraScreenState extends State<CameraScreen> {
     }
   }
 
+  /*
+   * Gửi yêu cầu trích xuất đặc trưng khuôn mặt (embedding) từ một bức ảnh 
+   * Ảnh sẽ được gửi vào Background Isolate để xử lý mà không làm giật UI
+   */
   Future<List<double>?> _processFaceRecognition(String path) async {
-    if (_faceNetService.modelBytes == null) return null;
-
-    return compute(CameraUtils.recognizeIsolate, {
-      'path': path,
-      'modelBytes': _faceNetService.modelBytes!,
-      'rootIsolateToken': RootIsolateToken.instance!,
-    });
+    if (!_faceNetService.isLoaded) return null;
+    return await FaceRecognitionWorker.process(path);
   }
 
-  // _scanFace gọn lại
+  /*
+   * Logic Đăng ký khuôn mặt mới (Vòng lặp lấy 5 góc độ khuôn mặt)
+   * UI sẽ gọi liên tiếp hàm chụp ảnh và gửi vào BLoC
+   */
   void _scanFace() async {
     final cameraCubit = context.read<CameraProcessCubit>();
     final recognizingBloc = context.read<RecognizingFaceBloc>();
-    final stream = recognizingBloc.stream;
     // final userBloc = context.read<UserBloc>();
 
     if (cameraCubit.state['isProcessing'] ||
@@ -150,29 +150,37 @@ class _CameraScreenState extends State<CameraScreen> {
           // );
           continue;
         }
-        // recognizingBloc.add(
-        //   CheckSimilarityEvent(message: 'Đang xử lý khuôn mặt'),
-        // );
-
         recognizingBloc.add(
           ProcessingFaceEvent(newEmbedding: embedding, index: count + 1),
         );
 
-        final result = await stream.firstWhere(
-          (state) =>
-              state is RecognizingFaceProcessingErrol ||
-              state is RecognizingFaceProcessingUpdate ||
-              state is RecognizingFaceSuccess ||
-              state is RecognizingFaceFailed,
-        );
+        // Đợi một chút để UI cập nhật trạng thái mới nhất từ BLoC
+        await Future.delayed(const Duration(milliseconds: 100));
 
-        if (result is RecognizingFaceProcessingErrol ||
-            result is RecognizingFaceFailed) {
+        final currentState = recognizingBloc.state;
+        if (currentState is RecognizingFaceProcessingErrol ||
+            currentState is RecognizingFaceFailed) {
           return;
         }
+
         debugPrint('Vòng lặp thứ: $count');
         count++;
       }
+
+      //lưu lên database
+      if (!mounted) return;
+      context.read<RecognizedFacesBloc>().add(AddRecognizedFaceEvent(
+          faceEmbedding: recognizingBloc.state.maybeWhen(
+              success: (embedding, message) => embedding,
+              orElse: () => FaceEmbedding(
+                  vector1: [],
+                  vector2: [],
+                  vector3: [],
+                  vector4: [],
+                  vector5: [],
+                  id: '',
+                  userId: '',
+                  registeredAt: DateTime.now()))));
     } catch (e) {
       debugPrint('lỗi : $e');
     } finally {
@@ -183,15 +191,25 @@ class _CameraScreenState extends State<CameraScreen> {
     }
   }
 
-  void _checkSimilarity() async {
+  /*
+   * Logic so sánh khuôn mặt hiện tại với cơ sở dữ liệu đã đăng ký
+   * Nếu trùng khớp (độ tương đồng > 0.8), tuỳ theo index:
+   *  - index = 1: Báo lỗi "Khuôn mặt đã tồn tại" (dành cho luồng đăng ký)
+   *  - index = 2: Gửi sự kiện CheckInOutEvent để chấm công
+   */
+  void _checkSimilarity(int? index) async {
     final recognizedFacesBloc = context.read<RecognizedFacesBloc>();
     final recognizedFaces = recognizedFacesBloc.state.maybeWhen(
       hasData: (faces) => faces,
       orElse: () => <List<FaceEmbedding>>[],
     );
     if (recognizedFaces.isEmpty) {
-      return;
+      if (index == 1) {
+        _scanFace();
+        return;
+      }
     }
+    if (!mounted) return;
     context.read<RecognizingFaceBloc>().add(
           ProcessingInitEvent(message: 'Đang bắt đầu nhận diện khuôn mặt'),
         );
@@ -199,6 +217,7 @@ class _CameraScreenState extends State<CameraScreen> {
     final image = await _controller!.takePicture();
     final newEmbedding = await _processFaceRecognition(image.path);
 
+    if (!mounted) return;
     if (newEmbedding == null || newEmbedding.isEmpty) {
       context.read<RecognizingFaceBloc>().add(
             CheckSimilarityEvent(
@@ -213,8 +232,23 @@ class _CameraScreenState extends State<CameraScreen> {
         face.vector1,
       );
       if (similarity > 0.8) {
-        _checkInOut(face.userId, similarity);
+        if (index == 1) {
+          context.read<RecognizingFaceBloc>().add(
+                CheckSimilarityEvent(
+                  message: 'Khuôn mặt đã tồn tại, vui lòng thử lại',
+                ),
+              );
+          return;
+        }
+        if (!mounted) return;
+        context.read<AttendanceBloc>().add(
+              CheckInOutEvent(userId: face.userId, similarity: similarity),
+            );
       } else {
+        if (index == 1) {
+          _scanFace();
+          return;
+        }
         context.read<RecognizingFaceBloc>().add(
               CheckSimilarityEvent(
                 message: 'Khuôn mặt không khớp, vui lòng thử lại',
@@ -222,94 +256,6 @@ class _CameraScreenState extends State<CameraScreen> {
             );
       }
     }
-  }
-
-  //hàm kiểm tra user đã checkin hay chưa, nếu đã check in rồi thì sẽ check out
-  void _checkInOut(String userId, double similarity) async {
-    final attendanceBloc = context.read<AttendanceBloc>();
-    final recognizingBloc = context.read<RecognizingFaceBloc>();
-
-    final attendances = attendanceBloc.state.maybeWhen(
-      (data, status, message) => data,
-      orElse: () => [],
-    );
-
-    debugPrint('Danh sách chấm công hiện tại: ${attendances.length} bản ghi');
-    final now = DateTime.now();
-
-    // Record hôm nay của user hiện tại
-    final userRecords = attendances.where((record) {
-      return record.userId == userId &&
-          record.checkedAt.year == now.year &&
-          record.checkedAt.month == now.month &&
-          record.checkedAt.day == now.day;
-    }).toList();
-    // debugPrint('Record của user hôm nay: ${userRecords.first.type} bản ghi');
-
-    //giả sử thời bắt đầu làm việc là 8h sáng
-    final workStartTime = DateTime(now.year, now.month, now.day, 8);
-    //giả sử thời kết thúc làm việc là 5h chiều
-    final workEndTime = DateTime(now.year, now.month, now.day, 17);
-
-    // Đã checkout rồi
-    final hasCheckedOut = userRecords.any(
-      (e) => e.type == AttendanceType.checkOut,
-    );
-
-    if (hasCheckedOut) {
-      recognizingBloc.add(
-        CheckSimilarityEvent(message: 'Bạn đã check out hôm nay rồi'),
-      );
-      return;
-    }
-
-    final gpsLocation = await PermissionUtils.getGPSLocation();
-    final ipAddress = await PermissionUtils.getIpAddress();
-
-    // Đã checkin nhưng chưa checkout
-    final hasCheckedIn = userRecords.any(
-      (e) => e.type == AttendanceType.checkIn,
-    );
-
-    if (hasCheckedIn) {
-      final attendance = Attendance(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          userId: userId,
-          checkedAt: now,
-          type: AttendanceType.checkOut,
-          status: now.isBefore(workEndTime)
-              ? AttendanceStatus.early
-              : AttendanceStatus.onTime,
-          similarity: similarity,
-          gpsLocation: gpsLocation.latitude.toString() +
-              ',' +
-              gpsLocation.longitude.toString(),
-          ipAddress: ipAddress);
-
-      attendanceBloc.add(AddAttendanceEvent(attendance: attendance));
-      recognizingBloc.add(
-        CheckSimilarityEvent(message: 'Check out thành công'),
-      );
-      return;
-    }
-
-    // Chưa có record thì checkint
-    final attendance = Attendance(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        userId: userId,
-        checkedAt: now,
-        type: AttendanceType.checkIn,
-        status: now.isAfter(workStartTime)
-            ? AttendanceStatus.late
-            : AttendanceStatus.onTime,
-        similarity: similarity,
-        gpsLocation: gpsLocation.latitude.toString() +
-            ',' +
-            gpsLocation.longitude.toString(),
-        ipAddress: ipAddress);
-
-    attendanceBloc.add(AddAttendanceEvent(attendance: attendance));
-    recognizingBloc.add(CheckSimilarityEvent(message: 'Check in thành công'));
   }
 
   ElevatedButton elevatedButton({
@@ -451,8 +397,8 @@ class _CameraScreenState extends State<CameraScreen> {
                 child: ButtomPannelCus(
                   index: widget.index,
                   recognizingBloc: recognizingBloc,
-                  onScan: _scanFace,
-                  onCheck: _checkSimilarity,
+                  onScan: () => _checkSimilarity(1),
+                  onCheck: () => _checkSimilarity(null),
                 ),
               ),
             ],

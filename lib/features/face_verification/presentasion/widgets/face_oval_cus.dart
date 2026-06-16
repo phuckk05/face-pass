@@ -83,10 +83,10 @@ class _FaceOvalCusState extends State<FaceOvalCus>
     const color = Color(0xFF4ade80);
 
     Widget corner() => SizedBox(
-      width: size,
-      height: size,
-      child: CustomPaint(painter: CornerPainterCus(color, stroke)),
-    );
+          width: size,
+          height: size,
+          child: CustomPaint(painter: CornerPainterCus(color, stroke)),
+        );
 
     return [
       Positioned(top: 0, left: 0, child: corner()),

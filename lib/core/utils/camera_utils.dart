@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:math';
 
 import 'package:flutter/services.dart';
@@ -20,60 +21,7 @@ class CameraUtils {
   static Future<List<double>?> recognizeIsolate(
     Map<String, dynamic> args,
   ) async {
-    final path = args['path'] as String;
-    final modelBytes = args['modelBytes'] as Uint8List;
-    final rootIsolateToken = args['rootIsolateToken'] as RootIsolateToken;
-    BackgroundIsolateBinaryMessenger.ensureInitialized(rootIsolateToken);
-
-    // 1. Face detection trong isolate
-    final detector = FaceDetector(options: FaceDetectorOptions());
-    final faces = await detector.processImage(InputImage.fromFilePath(path));
-    await detector.close();
-    if (faces.isEmpty) return null;
-
-    // 2. Decode + crop + resize
-    final bb = faces.first.boundingBox;
-    final original = img.decodeImage(await File(path).readAsBytes());
-    if (original == null) return null;
-
-    final left = bb.left.toInt().clamp(0, original.width - 1);
-    final top = bb.top.toInt().clamp(0, original.height - 1);
-    final right = bb.right.toInt().clamp(left + 1, original.width);
-    final bottom = bb.bottom.toInt().clamp(top + 1, original.height);
-
-    final resized = img.copyResize(
-      img.copyCrop(
-        original,
-        x: left,
-        y: top,
-        width: right - left,
-        height: bottom - top,
-      ),
-      width: 160,
-      height: 160,
-    );
-
-    final input = [
-      List.generate(
-        160,
-        (y) => List.generate(160, (x) {
-          final p = resized.getPixel(x, y);
-          return [
-            (p.r.toDouble() - 128.0) / 128.0,
-            (p.g.toDouble() - 128.0) / 128.0,
-            (p.b.toDouble() - 128.0) / 128.0,
-          ];
-        }),
-      ),
-    ];
-    final output = [List.filled(128, 0.0)];
-
-    // 4. Inference
-    final interpreter = Interpreter.fromBuffer(modelBytes);
-    interpreter.run(input, output);
-    interpreter.close();
-
-    return List<double>.from(output[0]);
+    return null;
   }
 
   //chuyển đổi datetime sang hh:mm:ss DD/MM/YYYY
@@ -95,5 +43,106 @@ class CameraUtils {
         dt.difference(DateTime(dt.year, dt.month, dt.day, 8, 0));
     if (lateDuration.isNegative) return '0 phút';
     return '${lateDuration.inMinutes} phút';
+  }
+}
+
+/*
+ * Kiến trúc Background Isolate (Worker) để nhận diện khuôn mặt
+ * Isolate này chạy độc lập với luồng chính của Flutter (Main UI Thread),
+ * giúp load model TFLite cực nhanh và không làm treo màn hình khi xử lý ảnh.
+ */
+class FaceRecognitionWorker {
+  static SendPort? _sendPort;
+
+  static Future<void> init(Uint8List modelBytes, RootIsolateToken token) async {
+    if (_sendPort != null) return;
+    final receivePort = ReceivePort();
+    await Isolate.spawn(
+        _isolateEntry, [receivePort.sendPort, modelBytes, token]);
+    _sendPort = await receivePort.first as SendPort;
+  }
+
+  static Future<List<double>?> process(String path) async {
+    if (_sendPort == null) return null;
+    final responsePort = ReceivePort();
+    _sendPort!.send([path, responsePort.sendPort]);
+    return await responsePort.first as List<double>?;
+  }
+
+  /*
+   * Hàm entry point cho Isolate
+   * - Khởi tạo FaceDetector và Interpreter (mô hình AI) 1 lần duy nhất.
+   * - Lắng nghe liên tục các bức ảnh được gửi tới qua receivePort.
+   */
+  static void _isolateEntry(List<dynamic> args) async {
+    final SendPort sendPort = args[0];
+    final Uint8List modelBytes = args[1];
+    final RootIsolateToken token = args[2];
+    BackgroundIsolateBinaryMessenger.ensureInitialized(token);
+
+    final detector = FaceDetector(options: FaceDetectorOptions());
+    final interpreter = Interpreter.fromBuffer(modelBytes);
+
+    final receivePort = ReceivePort();
+    sendPort.send(receivePort.sendPort);
+
+    await for (final message in receivePort) {
+      final String path = message[0];
+      final SendPort replyPort = message[1];
+
+      try {
+        final faces =
+            await detector.processImage(InputImage.fromFilePath(path));
+        if (faces.isEmpty) {
+          replyPort.send(null);
+          continue;
+        }
+
+        final bb = faces.first.boundingBox;
+        final bytes = await File(path).readAsBytes();
+        final original = img.decodeJpg(bytes); // Faster decode
+        if (original == null) {
+          replyPort.send(null);
+          continue;
+        }
+
+        final left = bb.left.toInt().clamp(0, original.width - 1);
+        final top = bb.top.toInt().clamp(0, original.height - 1);
+        final right = bb.right.toInt().clamp(left + 1, original.width);
+        final bottom = bb.bottom.toInt().clamp(top + 1, original.height);
+
+        final resized = img.copyResize(
+          img.copyCrop(
+            original,
+            x: left,
+            y: top,
+            width: right - left,
+            height: bottom - top,
+          ),
+          width: 160,
+          height: 160,
+        );
+
+        final input = [
+          List.generate(
+            160,
+            (y) => List.generate(160, (x) {
+              final p = resized.getPixel(x, y);
+              return [
+                (p.r.toDouble() - 128.0) / 128.0,
+                (p.g.toDouble() - 128.0) / 128.0,
+                (p.b.toDouble() - 128.0) / 128.0,
+              ];
+            }),
+          ),
+        ];
+        final output = [List.filled(128, 0.0)];
+
+        interpreter.run(input, output);
+        replyPort.send(List<double>.from(output[0]));
+      } catch (e) {
+        replyPort.send(null);
+      }
+    }
   }
 }

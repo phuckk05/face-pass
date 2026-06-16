@@ -59,17 +59,16 @@ class ButtomPannelCus extends StatelessWidget {
                       processing: (messge) => false,
                       processingErrol: (message) => true,
                       failed: (message) => true,
-
                       orElse: () => false,
                     );
                     return FilledButton(
                       onPressed: index == 1
                           ? isProcessing
-                                ? onScan
-                                : null
+                              ? onScan
+                              : null
                           : isCheckSuccess
-                          ? onCheck
-                          : null,
+                              ? onCheck
+                              : null,
                       style: FilledButton.styleFrom(
                         backgroundColor: const Color(0xFF2d6a4f),
                         padding: const EdgeInsets.symmetric(vertical: 12),

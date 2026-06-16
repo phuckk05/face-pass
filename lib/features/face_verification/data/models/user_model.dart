@@ -21,21 +21,21 @@ abstract class UserModel with _$UserModel {
 extension UserModelX on UserModel {
   // Model → Entity
   User toEntity() => User(
-    id: id,
-    name: name,
-    department: department,
-    avatarUrl: avatarUrl,
-    createdAt: createdAt,
-  );
+        id: id,
+        name: name,
+        department: department,
+        avatarUrl: avatarUrl,
+        createdAt: createdAt,
+      );
 }
 
 extension UserX on User {
   // Entity → Model
   UserModel toModel() => UserModel(
-    id: id,
-    name: name,
-    department: department,
-    avatarUrl: avatarUrl,
-    createdAt: createdAt,
-  );
+        id: id,
+        name: name,
+        department: department,
+        avatarUrl: avatarUrl,
+        createdAt: createdAt,
+      );
 }

@@ -12,3 +12,9 @@ class AddAttendanceEvent extends AttendanceEvent {
 class FetchAttendancesEvent extends AttendanceEvent {
   FetchAttendancesEvent();
 }
+
+class CheckInOutEvent extends AttendanceEvent {
+  final String userId;
+  final double similarity;
+  CheckInOutEvent({required this.userId, required this.similarity});
+}

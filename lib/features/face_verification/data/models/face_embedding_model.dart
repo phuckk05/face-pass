@@ -25,27 +25,27 @@ abstract class FaceEmbeddingModel with _$FaceEmbeddingModel {
 extension FaceEmbeddingModelX on FaceEmbeddingModel {
   // Model → Entity
   FaceEmbedding toEntity() => FaceEmbedding(
-    id: id,
-    userId: userId,
-    vector1: vector1,
-    vector2: vector2,
-    vector3: vector3,
-    vector4: vector4,
-    vector5: vector5,
-    registeredAt: registeredAt,
-  );
+        id: id,
+        userId: userId,
+        vector1: vector1,
+        vector2: vector2,
+        vector3: vector3,
+        vector4: vector4,
+        vector5: vector5,
+        registeredAt: registeredAt,
+      );
 }
 
 extension FaceEmbeddingX on FaceEmbedding {
   // Entity → Model
   FaceEmbeddingModel toModel() => FaceEmbeddingModel(
-    id: id,
-    userId: userId,
-    vector1: vector1,
-    vector2: vector2,
-    vector3: vector3,
-    vector4: vector4,
-    vector5: vector5,
-    registeredAt: registeredAt,
-  );
+        id: id,
+        userId: userId,
+        vector1: vector1,
+        vector2: vector2,
+        vector3: vector3,
+        vector4: vector4,
+        vector5: vector5,
+        registeredAt: registeredAt,
+      );
 }

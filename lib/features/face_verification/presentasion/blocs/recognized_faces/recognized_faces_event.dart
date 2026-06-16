@@ -8,5 +8,5 @@ class LoadRecognizedFacesEvent extends RecognizedFacesEvent {}
 //2- event thêm dữ liệu mới vào danh sách
 class AddRecognizedFaceEvent extends RecognizedFacesEvent {
   final FaceEmbedding faceEmbedding;
-  AddRecognizedFaceEvent(this.faceEmbedding);
+  AddRecognizedFaceEvent({required this.faceEmbedding});
 }

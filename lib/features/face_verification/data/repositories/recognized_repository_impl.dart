@@ -9,8 +9,8 @@ class RecognizedRepositoryImpl implements RecognizedRepository {
 
   @override
   Future<List<FaceEmbedding>> getRecognizedFaces() async {
-    final List<FaceEmbeddingModel> models = await remoteDataSource
-        .fetchRecognizedFaces();
+    final List<FaceEmbeddingModel> models =
+        await remoteDataSource.fetchRecognizedFaces();
     return models
         .map((model) => FaceEmbeddingModelX(model).toEntity())
         .toList();

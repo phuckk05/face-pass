@@ -16,7 +16,7 @@ class RecognizingFaceBloc
   FaceEmbedding? _currentEmbedding;
 
   RecognizingFaceBloc({required this.registerFaceUseCase})
-    : super(const RecognizingFaceState.initial(messge: null)) {
+      : super(const RecognizingFaceState.initial(messge: null)) {
     /* 1 */
     on<InitProcessFaceEvent>(_initProcessFace);
     /* 2 */
