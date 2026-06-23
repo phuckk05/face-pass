@@ -1,4 +1,4 @@
-import 'package:facepass/features/face_verification/domain/entities/face_embedding%20.dart';
+import 'package:facepass/features/face_verification/domain/entities/face_embedding.dart';
 import 'package:facepass/features/face_verification/domain/repositories/recognized_repository.dart';
 
 class RegistedFace {
@@ -7,5 +7,10 @@ class RegistedFace {
 
   Future<List<FaceEmbedding>> callGetRegistedFaces() async {
     return await recognizedRepository.getRecognizedFaces();
+  }
+
+  //lấy face embedding của user đã đăng kí
+  Future<FaceEmbedding?> callGetRegistedFaceByUserId(String userId) async {
+    return await recognizedRepository.getRecognizedFaceByUserId(userId);
   }
 }

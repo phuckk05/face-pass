@@ -1,0 +1,141 @@
+import 'package:facepass/core/widgets/button_cus.dart';
+import 'package:facepass/features/auth/domain/entities/user.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/widgets/label_cus.dart';
+import '../../../../core/widgets/text_field_cus.dart';
+import '../../../auth/presentation/blocs/auth/auth_bloc.dart';
+import '../cubits/role_cubit.dart';
+import '../widgets/drop_box_cus.dart';
+
+class GrantAccountScreen extends StatelessWidget {
+  GrantAccountScreen({super.key});
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  void _handleGrantAccount(BuildContext context) {
+    // Xử lý cấp tài khoản ở đây
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    final user = User(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        name: '',
+        email: email,
+        role: context.read<RoleCubit>().state,
+        avatarUrl: '',
+        department: '',
+        phoneNumber: '',
+        password: password,
+        createdAt: DateTime.now());
+
+    context.read<AuthBloc>().add(AuthRegister(user: user));
+    // Clear textfield
+    _emailController.clear();
+    _passwordController.clear();
+  }
+
+  //lằng nghe sự kiện khi cấp tài khoản thành công hay thất bại
+  Widget _buildBlocListener({required Widget child}) {
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state.status == AuthStatus.registerSuccess) {
+          // Xử lý khi cấp tài khoản thành công
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Cấp tài khoản thành công!')),
+          );
+        } else if (state.status == AuthStatus.error) {
+          // Xử lý khi cấp tài khoản thất bại
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text(state.errorMessage ?? 'Cấp tài khoản thất bại')),
+          );
+        }
+      },
+      child: child,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _buildBlocListener(
+      child: Scaffold(
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              titleSpacing: 0,
+              leading: IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () {
+                    context.pop();
+                  }),
+              expandedHeight: 56,
+              floating: true,
+              snap: true,
+              // pinned: false,
+              // elevation: AppValues.cardElevation,
+              backgroundColor: AppColors.primaryColor,
+              title: Text(
+                'Cấp tài khoản',
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+            //body
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    LabelCus(text: 'Vai trò'),
+                    const SizedBox(height: 8),
+                    BlocBuilder<RoleCubit, String>(
+                      builder: (context, role) {
+                        return DropBoxCus(selectedValue: role);
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    LabelCus(text: 'Email'),
+                    const SizedBox(height: 8),
+                    TextFieldCus(
+                        width: double.infinity,
+                        height: 50,
+                        borderRadius: 8,
+                        controller: _emailController,
+                        hintText: 'Nhập email'),
+                    const SizedBox(height: 16),
+                    LabelCus(text: 'Mật khẩu'),
+                    const SizedBox(height: 8),
+                    TextFieldCus(
+                        width: double.infinity,
+                        height: 50,
+                        borderRadius: 8,
+                        controller: _passwordController,
+                        hintText: 'Nhập mật khẩu'),
+                    const SizedBox(height: 16),
+                    BlocBuilder<AuthBloc, AuthState>(
+                      builder: (context, state) {
+                        return ButtonCus(
+                          isLoading: state.status == AuthStatus.loading,
+                          text: 'Cấp tài khoản',
+                          width: double.infinity,
+                          backgroundColor: AppColors.primaryColor,
+                          height: 50,
+                          onPressed: () => _handleGrantAccount(context),
+                          textStyle: const TextStyle(color: Colors.white),
+                        );
+                      },
+                    )
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

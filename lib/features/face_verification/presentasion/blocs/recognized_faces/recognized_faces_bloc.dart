@@ -1,4 +1,4 @@
-import 'package:facepass/features/face_verification/domain/entities/face_embedding%20.dart';
+import 'package:facepass/features/face_verification/domain/entities/face_embedding.dart';
 import 'package:facepass/features/face_verification/domain/usecase/registed_face.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';

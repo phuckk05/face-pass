@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 // import '../../../../../core/utils/camera_utils.dart';
 import '../../../../../core/utils/camera_utils.dart';
-import '../../../domain/entities/face_embedding .dart';
+import '../../../domain/entities/face_embedding.dart';
 part 'recognizing_face_bloc.freezed.dart';
 
 part 'recognizing_face_state.dart';

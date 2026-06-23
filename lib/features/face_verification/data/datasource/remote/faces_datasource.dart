@@ -31,6 +31,25 @@ class FacesRemoteDataSource {
     }
   }
 
+  //lấy khuôn mặt đã được nhận diện từ database theo userId
+  Future<FaceEmbeddingModel?> fetchRecognizedFaceByUserId(String userId) async {
+    try {
+      final snapshot = await db.child(userId).get();
+      if (snapshot.exists) {
+        final data = snapshot.value as Map<Object?, Object?>;
+        final faceMap = data.map(
+          (key, value) => MapEntry(key.toString(), value),
+        );
+        return FaceEmbeddingModel.fromJson(faceMap);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      debugPrint('Lỗi : $e');
+      return null;
+    }
+  }
+
   //thêm khuôn mặt đã được nhận diện vào database
   Future<bool> addRecognizedFace(FaceEmbeddingModel face) async {
     try {

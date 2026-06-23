@@ -3,7 +3,7 @@ import 'package:facepass/features/face_verification/data/models/user_model.dart'
 import 'package:facepass/features/face_verification/domain/entities/user.dart';
 import 'package:facepass/features/face_verification/domain/repositories/recognizing_repository.dart';
 
-import '../../domain/entities/face_embedding .dart';
+import '../../domain/entities/face_embedding.dart';
 import '../datasource/remote/faces_datasource.dart';
 import '../models/face_embedding_model.dart';
 

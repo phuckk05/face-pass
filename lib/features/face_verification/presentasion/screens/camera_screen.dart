@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:camera/camera.dart';
+import 'package:facepass/core/router/router_app.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/attendance/attendance_bloc.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/recognized_faces/recognized_faces_bloc.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/register_user/user_bloc.dart';
@@ -8,9 +9,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../core/utils/camera_utils.dart';
-import '../../domain/entities/face_embedding .dart';
+import '../../../auth/domain/entities/user.dart';
+import '../../domain/entities/face_embedding.dart';
 import '../blocs/recognizing_face/recognizing_face_bloc.dart';
 import '../cubit/camera_process_cubit.dart';
 import '../widgets/buttom_pannel_cus.dart';
@@ -43,7 +46,8 @@ class FaceNetService {
 
 class CameraScreen extends StatefulWidget {
   final int index;
-  const CameraScreen({super.key, required this.index});
+  final User user;
+  const CameraScreen({super.key, required this.index, required this.user});
 
   @override
   State<CameraScreen> createState() => _CameraScreenState();
@@ -56,7 +60,7 @@ class _CameraScreenState extends State<CameraScreen> {
   @override
   void initState() {
     //giả lập đã call trước
-    context.read<UserBloc>().add(GetUserByIdEvent(id: "1780664304466"));
+    // context.read<UserBloc>().add(GetUserByIdEvent(id: widget.user.id));
     context.read<RecognizingFaceBloc>().add(InitProcessFaceEvent());
     _initializeAll();
     super.initState();
@@ -127,7 +131,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
       recognizingBloc.add(InitProcessFaceEvent());
 
-      recognizingBloc.add(CreateTempFaceEmbedding(userId: '1780664304466'));
+      recognizingBloc.add(CreateTempFaceEmbedding(userId: widget.user.id));
 
       int count = 0;
       int countFaceFailed = 0;
@@ -321,9 +325,7 @@ class _CameraScreenState extends State<CameraScreen> {
         listener: (context, state) {
           state.maybeWhen(
             success: (embedding, message) {
-              // context.read<RecognizingFaceBloc>().add(
-              //   CheckSimilarityEvent(message: 'Đã thêm khuôn mặt thành công'),
-              // );
+              context.goNamed(loginRouteName);
             },
             orElse: () {},
           );
@@ -335,14 +337,16 @@ class _CameraScreenState extends State<CameraScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isNotUser = widget.user.id.isEmpty;
     return buildListener(
       child: Scaffold(
         appBar: AppBar(
-          titleSpacing: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
+          titleSpacing: isNotUser ? 0 : null,
+          leading: isNotUser
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => context.pop())
+              : null,
           automaticallyImplyLeading: false,
           title: Text(
             widget.index == 1 ? 'Đăng ký khuôn mặt' : 'Chấm công',

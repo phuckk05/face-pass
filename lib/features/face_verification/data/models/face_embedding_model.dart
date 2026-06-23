@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../domain/entities/face_embedding .dart';
+import '../../domain/entities/face_embedding.dart';
 
 part 'face_embedding_model.freezed.dart';
 part 'face_embedding_model.g.dart';
