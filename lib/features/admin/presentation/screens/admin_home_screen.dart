@@ -137,7 +137,10 @@ class AdminHomeScreen extends StatelessWidget {
                       onPressed: () {
                         context.pushNamed(
                           cameraRouteName,
-                          pathParameters: {'index': '2'},
+                          extra: {
+                            'index': 2,
+                            'user': context.read<AuthBloc>().state.user
+                          },
                         );
                       },
                       textStyle: const TextStyle(fontSize: 16)),

@@ -1,5 +1,7 @@
 import 'package:facepass/core/constants/app_colors.dart';
 import 'package:facepass/core/router/router_app.dart';
+import 'package:facepass/core/utils/scaffold_messenger_utils.dart';
+import 'package:facepass/core/utils/validation_utils.dart';
 import 'package:facepass/core/widgets/label_cus.dart' show LabelCus;
 import 'package:facepass/features/auth/domain/entities/user.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +10,9 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/widgets/button_cus.dart';
 import '../../../../core/widgets/text_field_cus.dart';
+import '../../../face_verification/data/datasource/remote/faces_datasource.dart';
+import '../../../face_verification/data/repositories/recognized_repository_impl.dart';
+import '../../../face_verification/domain/usecase/registed_face.dart';
 import '../blocs/auth/auth_bloc.dart';
 
 class SetupScreen extends StatelessWidget {
@@ -21,7 +26,39 @@ class SetupScreen extends StatelessWidget {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _departmentController = TextEditingController();
 
+  final RegistedFace registedFace = RegistedFace(
+    recognizedRepository: RecognizedRepositoryImpl(
+      remoteDataSource: FacesRemoteDataSource(),
+    ),
+  );
+
+  bool _validateInputs(BuildContext context) {
+    if (!ValidationUtils.isValidPassword(
+        _passwordController.text, _confirmPasswordController.text)) {
+      ScaffoldMessengerUtils.error(
+          context, 'Mật khẩu không hợp lệ hoặc không khớp');
+      return false;
+    }
+    if (!ValidationUtils.isValidName(_nameController.text)) {
+      ScaffoldMessengerUtils.error(context, 'Họ và tên không hợp lệ');
+      return false;
+    }
+    if (!ValidationUtils.isValidPhoneNumber(_phoneController.text)) {
+      ScaffoldMessengerUtils.error(context, 'Số điện thoại không hợp lệ');
+      return false;
+    }
+    if (!ValidationUtils.isValidDepartment(_departmentController.text)) {
+      ScaffoldMessengerUtils.error(context, 'Phòng ban không hợp lệ');
+      return false;
+    }
+    return true;
+  }
+
   void _handleSetup(BuildContext context) {
+    //validate
+    if (!_validateInputs(context)) {
+      return;
+    }
     final userUpdate = User(
       id: user.id,
       email: user.email,
@@ -35,6 +72,28 @@ class SetupScreen extends StatelessWidget {
     context.read<AuthBloc>().add(AuthUpdate(user: userUpdate));
 
     FocusScope.of(context).unfocus();
+  }
+
+  void _loginAsUser(BuildContext context, User user) async {
+    final hasRegistedFace =
+        await registedFace.callGetRegistedFaceByUserId(user.id);
+    if (hasRegistedFace == null) {
+      debugPrint(
+          'Lỗi khi kiểm tra khuôn mặt đã đăng ký: Không thể lấy dữ liệu');
+      context.goNamed(cameraRouteName, extra: {'user': user, 'index': 1});
+      return;
+    }
+
+    switch (user.role) {
+      case 'admin':
+        context.goNamed(adminHomeRouteName, extra: {'user': user});
+        break;
+      case 'user':
+        context.goNamed(homeRouteName, extra: {'user': user});
+        break;
+      default:
+        context.goNamed(loginRouteName);
+    }
   }
 
   //clear textfield
@@ -52,10 +111,7 @@ class SetupScreen extends StatelessWidget {
       listener: (context, state) {
         if (state.status == AuthStatus.updateSuccess) {
           _clearTextFields();
-          context.goNamed(cameraRouteName, extra: {
-            'index': 1,
-            'user': state.user,
-          });
+          _loginAsUser(context, state.user!);
         } else if (state.status == AuthStatus.error) {
           // Xử lý khi cập nhật thông tin thất bại
           ScaffoldMessenger.of(context).showSnackBar(

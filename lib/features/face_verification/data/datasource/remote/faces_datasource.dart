@@ -34,14 +34,17 @@ class FacesRemoteDataSource {
   //lấy khuôn mặt đã được nhận diện từ database theo userId
   Future<FaceEmbeddingModel?> fetchRecognizedFaceByUserId(String userId) async {
     try {
-      final snapshot = await db.child(userId).get();
+      final snapshot =
+          await db.orderByChild('userId').equalTo(userId).limitToFirst(1).get();
       if (snapshot.exists) {
         final data = snapshot.value as Map<Object?, Object?>;
-        final faceMap = data.map(
+        final faceMap = (data.values.first as Map<Object?, Object?>).map(
           (key, value) => MapEntry(key.toString(), value),
         );
+        debugPrint('Khuôn mặt đã nhận diện cho userId: $userId là: $faceMap');
         return FaceEmbeddingModel.fromJson(faceMap);
       } else {
+        debugPrint('Không tìm thấy khuôn mặt đã nhận diện cho userId: $userId');
         return null;
       }
     } catch (e) {

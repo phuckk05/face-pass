@@ -67,17 +67,22 @@ class LoginScreen extends StatelessWidget {
   }
 
   void _loginAsUser(BuildContext context, User user) async {
-    final hasSetup = user.name.isNotEmpty;
+    final hasSetup = user.name.isEmpty;
 
     //nếu đã setup thì vào home, nếu chưa setup thì vào setup
     if (hasSetup) {
-      context.goNamed(homeRouteName);
+      context.goNamed(setupRouteName, extra: {'user': user});
+      return;
     }
+
     //nếu đã đăng kí khuôn mặt thì vào home, nếu chưa đăng kí thì khuôn mặt
     final hasRegistedFace =
         await registedFace.callGetRegistedFaceByUserId(user.id);
-    if (hasRegistedFace != null) {
+    if (hasRegistedFace == null) {
+      debugPrint(
+          'Lỗi khi kiểm tra khuôn mặt đã đăng ký: Không thể lấy dữ liệu');
       context.goNamed(cameraRouteName, extra: {'user': user, 'index': 1});
+      return;
     }
 
     context.goNamed(homeRouteName);

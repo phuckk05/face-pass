@@ -4,7 +4,6 @@ import 'package:camera/camera.dart';
 import 'package:facepass/core/router/router_app.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/attendance/attendance_bloc.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/recognized_faces/recognized_faces_bloc.dart';
-import 'package:facepass/features/face_verification/presentasion/blocs/register_user/user_bloc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -316,9 +315,21 @@ class _CameraScreenState extends State<CameraScreen> {
     return BlocListener<AttendanceBloc, AttendanceState>(
       listener: (context, state) {
         state.when((data, status, message) {
-          context.read<RecognizingFaceBloc>().add(
-                StopVerifyingEvent(message: message ?? 'Đã dừng xử lý'),
-              );
+          // switch (status) {
+          //   case AttendanceStateStatus.success:
+          //     ScaffoldMessenger.of(context).showSnackBar(
+          //       SnackBar(content: Text(message ?? 'Chấm công thành công')),
+          //     );
+          //     break;
+          //   case AttendanceStateStatus.error:
+          //     ScaffoldMessenger.of(context).showSnackBar(
+          //       SnackBar(content: Text(message ?? 'Chấm công thất bại')),
+          //     );
+          //     break;
+          //   case AttendanceStateStatus.loading:
+          //     // Có thể hiển thị loading indicator nếu cần
+          //     break;
+          // }
         });
       },
       child: BlocListener<RecognizedFacesBloc, RecognizedFacesState>(
@@ -337,16 +348,19 @@ class _CameraScreenState extends State<CameraScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isNotUser = widget.user.id.isEmpty;
+    final isIndex1 = widget.index == 1;
     return buildListener(
       child: Scaffold(
         appBar: AppBar(
-          titleSpacing: isNotUser ? 0 : null,
-          leading: isNotUser
-              ? IconButton(
+          titleSpacing: isIndex1 ? null : 0,
+          leading: isIndex1
+              ? null
+              : IconButton(
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () => context.pop())
-              : null,
+                  onPressed: () {
+                    context.pop();
+                  },
+                ),
           automaticallyImplyLeading: false,
           title: Text(
             widget.index == 1 ? 'Đăng ký khuôn mặt' : 'Chấm công',
