@@ -30,17 +30,16 @@ class RecognizedFacesBloc
     Emitter<RecognizedFacesState> emit,
   ) async {
     emit(RecognizedFacesState.loading());
-    try {
-      final faces = await registedFace.callGetRegistedFaces();
-      emit(RecognizedFacesState.hasData(recognizedFaces: faces));
-    } catch (e) {
-      emit(
+    final result = await registedFace.callGetRegistedFaces();
+    result.fold(
+      (failure) => emit(
         RecognizedFacesState.error(
-          message: "Lỗi khi tải danh sách khuôn mặt",
+          message: failure.message,
           faces: [],
         ),
-      );
-    }
+      ),
+      (faces) => emit(RecognizedFacesState.hasData(recognizedFaces: faces)),
+    );
   }
 
   //2 - thêm dữ liệu khuôn mặt mới vào danh sách đã nhận diện
@@ -49,25 +48,26 @@ class RecognizedFacesBloc
     Emitter<RecognizedFacesState> emit,
   ) async {
     emit(RecognizedFacesState.loading());
-    try {
-      final result = await registerFaceUseCase.callRegisterFace(
-        event.faceEmbedding,
-      );
-      if (result) {
-        emit(
-          RecognizedFacesState.success(
-            embedding: event.faceEmbedding,
-            message: 'Thêm khuôn mặt vào danh sách thành công',
-          ),
-        );
-      }
-    } catch (e) {
-      emit(
+    final result = await registerFaceUseCase.callRegisterFace(
+      event.faceEmbedding,
+    );
+    result.fold(
+      (failure) => emit(
         RecognizedFacesState.error(
-          message: "Lỗi khi thêm khuôn mặt vào danh sách",
+          message: failure.message,
           faces: [],
         ),
-      );
-    }
+      ),
+      (success) {
+        if (success) {
+          emit(
+            RecognizedFacesState.success(
+              embedding: event.faceEmbedding,
+              message: 'Thêm khuôn mặt vào danh sách thành công',
+            ),
+          );
+        }
+      },
+    );
   }
 }

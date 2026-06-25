@@ -10,6 +10,7 @@ _AttendanceModel _$AttendanceModelFromJson(Map<String, dynamic> json) =>
     _AttendanceModel(
       id: json['id'] as String,
       userId: json['userId'] as String,
+      userName: json['userName'] as String,
       checkedAt: DateTime.parse(json['checkedAt'] as String),
       type: $enumDecode(_$AttendanceTypeEnumMap, json['type']),
       status: $enumDecode(_$AttendanceStatusEnumMap, json['status']),
@@ -22,6 +23,7 @@ Map<String, dynamic> _$AttendanceModelToJson(_AttendanceModel instance) =>
     <String, dynamic>{
       'id': instance.id,
       'userId': instance.userId,
+      'userName': instance.userName,
       'checkedAt': instance.checkedAt.toIso8601String(),
       'type': _$AttendanceTypeEnumMap[instance.type]!,
       'status': _$AttendanceStatusEnumMap[instance.status]!,

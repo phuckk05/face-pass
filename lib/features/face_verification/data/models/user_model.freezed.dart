@@ -16,6 +16,10 @@ T _$identity<T>(T value) => value;
 mixin _$UserModel {
   String get id;
   String get name;
+  String get email;
+  String get password;
+  String get role;
+  String? get phoneNumber;
   String? get department;
   String? get avatarUrl;
   DateTime get createdAt;
@@ -37,6 +41,12 @@ mixin _$UserModel {
             other is UserModel &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.password, password) ||
+                other.password == password) &&
+            (identical(other.role, role) || other.role == role) &&
+            (identical(other.phoneNumber, phoneNumber) ||
+                other.phoneNumber == phoneNumber) &&
             (identical(other.department, department) ||
                 other.department == department) &&
             (identical(other.avatarUrl, avatarUrl) ||
@@ -47,12 +57,12 @@ mixin _$UserModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, name, department, avatarUrl, createdAt);
+  int get hashCode => Object.hash(runtimeType, id, name, email, password, role,
+      phoneNumber, department, avatarUrl, createdAt);
 
   @override
   String toString() {
-    return 'UserModel(id: $id, name: $name, department: $department, avatarUrl: $avatarUrl, createdAt: $createdAt)';
+    return 'UserModel(id: $id, name: $name, email: $email, password: $password, role: $role, phoneNumber: $phoneNumber, department: $department, avatarUrl: $avatarUrl, createdAt: $createdAt)';
   }
 }
 
@@ -64,6 +74,10 @@ abstract mixin class $UserModelCopyWith<$Res> {
   $Res call(
       {String id,
       String name,
+      String email,
+      String password,
+      String role,
+      String? phoneNumber,
       String? department,
       String? avatarUrl,
       DateTime createdAt});
@@ -83,6 +97,10 @@ class _$UserModelCopyWithImpl<$Res> implements $UserModelCopyWith<$Res> {
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? email = null,
+    Object? password = null,
+    Object? role = null,
+    Object? phoneNumber = freezed,
     Object? department = freezed,
     Object? avatarUrl = freezed,
     Object? createdAt = null,
@@ -96,6 +114,22 @@ class _$UserModelCopyWithImpl<$Res> implements $UserModelCopyWith<$Res> {
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
+      email: null == email
+          ? _self.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String,
+      password: null == password
+          ? _self.password
+          : password // ignore: cast_nullable_to_non_nullable
+              as String,
+      role: null == role
+          ? _self.role
+          : role // ignore: cast_nullable_to_non_nullable
+              as String,
+      phoneNumber: freezed == phoneNumber
+          ? _self.phoneNumber
+          : phoneNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
       department: freezed == department
           ? _self.department
           : department // ignore: cast_nullable_to_non_nullable
@@ -205,15 +239,31 @@ extension UserModelPatterns on UserModel {
 
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>(
-    TResult Function(String id, String name, String? department,
-            String? avatarUrl, DateTime createdAt)?
+    TResult Function(
+            String id,
+            String name,
+            String email,
+            String password,
+            String role,
+            String? phoneNumber,
+            String? department,
+            String? avatarUrl,
+            DateTime createdAt)?
         $default, {
     required TResult orElse(),
   }) {
     final _that = this;
     switch (_that) {
       case _UserModel() when $default != null:
-        return $default(_that.id, _that.name, _that.department, _that.avatarUrl,
+        return $default(
+            _that.id,
+            _that.name,
+            _that.email,
+            _that.password,
+            _that.role,
+            _that.phoneNumber,
+            _that.department,
+            _that.avatarUrl,
             _that.createdAt);
       case _:
         return orElse();
@@ -235,14 +285,30 @@ extension UserModelPatterns on UserModel {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(String id, String name, String? department,
-            String? avatarUrl, DateTime createdAt)
+    TResult Function(
+            String id,
+            String name,
+            String email,
+            String password,
+            String role,
+            String? phoneNumber,
+            String? department,
+            String? avatarUrl,
+            DateTime createdAt)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _UserModel():
-        return $default(_that.id, _that.name, _that.department, _that.avatarUrl,
+        return $default(
+            _that.id,
+            _that.name,
+            _that.email,
+            _that.password,
+            _that.role,
+            _that.phoneNumber,
+            _that.department,
+            _that.avatarUrl,
             _that.createdAt);
       case _:
         throw StateError('Unexpected subclass');
@@ -263,14 +329,30 @@ extension UserModelPatterns on UserModel {
 
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>(
-    TResult? Function(String id, String name, String? department,
-            String? avatarUrl, DateTime createdAt)?
+    TResult? Function(
+            String id,
+            String name,
+            String email,
+            String password,
+            String role,
+            String? phoneNumber,
+            String? department,
+            String? avatarUrl,
+            DateTime createdAt)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _UserModel() when $default != null:
-        return $default(_that.id, _that.name, _that.department, _that.avatarUrl,
+        return $default(
+            _that.id,
+            _that.name,
+            _that.email,
+            _that.password,
+            _that.role,
+            _that.phoneNumber,
+            _that.department,
+            _that.avatarUrl,
             _that.createdAt);
       case _:
         return null;
@@ -284,6 +366,10 @@ class _UserModel implements UserModel {
   const _UserModel(
       {required this.id,
       required this.name,
+      required this.email,
+      required this.password,
+      required this.role,
+      this.phoneNumber,
       this.department,
       this.avatarUrl,
       required this.createdAt});
@@ -294,6 +380,14 @@ class _UserModel implements UserModel {
   final String id;
   @override
   final String name;
+  @override
+  final String email;
+  @override
+  final String password;
+  @override
+  final String role;
+  @override
+  final String? phoneNumber;
   @override
   final String? department;
   @override
@@ -323,6 +417,12 @@ class _UserModel implements UserModel {
             other is _UserModel &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.password, password) ||
+                other.password == password) &&
+            (identical(other.role, role) || other.role == role) &&
+            (identical(other.phoneNumber, phoneNumber) ||
+                other.phoneNumber == phoneNumber) &&
             (identical(other.department, department) ||
                 other.department == department) &&
             (identical(other.avatarUrl, avatarUrl) ||
@@ -333,12 +433,12 @@ class _UserModel implements UserModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, name, department, avatarUrl, createdAt);
+  int get hashCode => Object.hash(runtimeType, id, name, email, password, role,
+      phoneNumber, department, avatarUrl, createdAt);
 
   @override
   String toString() {
-    return 'UserModel(id: $id, name: $name, department: $department, avatarUrl: $avatarUrl, createdAt: $createdAt)';
+    return 'UserModel(id: $id, name: $name, email: $email, password: $password, role: $role, phoneNumber: $phoneNumber, department: $department, avatarUrl: $avatarUrl, createdAt: $createdAt)';
   }
 }
 
@@ -353,6 +453,10 @@ abstract mixin class _$UserModelCopyWith<$Res>
   $Res call(
       {String id,
       String name,
+      String email,
+      String password,
+      String role,
+      String? phoneNumber,
       String? department,
       String? avatarUrl,
       DateTime createdAt});
@@ -372,6 +476,10 @@ class __$UserModelCopyWithImpl<$Res> implements _$UserModelCopyWith<$Res> {
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? email = null,
+    Object? password = null,
+    Object? role = null,
+    Object? phoneNumber = freezed,
     Object? department = freezed,
     Object? avatarUrl = freezed,
     Object? createdAt = null,
@@ -385,6 +493,22 @@ class __$UserModelCopyWithImpl<$Res> implements _$UserModelCopyWith<$Res> {
           ? _self.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
+      email: null == email
+          ? _self.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String,
+      password: null == password
+          ? _self.password
+          : password // ignore: cast_nullable_to_non_nullable
+              as String,
+      role: null == role
+          ? _self.role
+          : role // ignore: cast_nullable_to_non_nullable
+              as String,
+      phoneNumber: freezed == phoneNumber
+          ? _self.phoneNumber
+          : phoneNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
       department: freezed == department
           ? _self.department
           : department // ignore: cast_nullable_to_non_nullable

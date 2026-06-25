@@ -16,6 +16,7 @@ import '../../../auth/presentation/blocs/auth/auth_bloc.dart';
 import '../cubits/role_cubit.dart';
 import '../widgets/drop_box_cus.dart';
 
+// ignore: must_be_immutable
 class GrantAccountScreen extends StatelessWidget {
   GrantAccountScreen({super.key});
 
@@ -46,10 +47,20 @@ class GrantAccountScreen extends StatelessWidget {
     }
 
     //kiểm tra email đã tồn tại chưa
-    if (await userUsecase.checkEmailExists(_emailController.text)) {
-      ScaffoldMessengerUtils.error(context, 'Email đã tồn tại');
-      return;
-    }
+    await userUsecase.checkEmailExists(_emailController.text).then((result) {
+      result.fold(
+        (failure) {
+          ScaffoldMessengerUtils.error(context, failure.message);
+          return;
+        },
+        (exists) {
+          if (exists) {
+            ScaffoldMessengerUtils.error(context, 'Email đã tồn tại');
+            return;
+          }
+        },
+      );
+    });
 
     context
         .read<AuthBloc>()

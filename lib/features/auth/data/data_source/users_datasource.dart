@@ -1,42 +1,61 @@
+import 'dart:async';
+
 import 'package:facepass/features/auth/data/models/user_model.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:fpdart/fpdart.dart';
+
+import '../../../../core/errors/failrue.dart';
 
 class UserAuthRemoteDatasource {
   final DatabaseReference db = FirebaseDatabase.instance.ref('users');
 
   //thêm 1 user vào database
-  Future<UserModel> addUser(UserModel userData) async {
+  Future<Either<Failure, UserModel>> addUser(UserModel userData) async {
     try {
-      await db.child(userData.id).set(userData.toJson());
-      return userData;
+      await db
+          .child(userData.id)
+          .set(userData.toJson())
+          .timeout(const Duration(seconds: 3));
+      return Right(userData);
+    } on TimeoutException {
+      debugPrint('Hết thời gian chờ khi thêm người dùng');
+      return Left(TimeoutFailure());
     } catch (e) {
-      throw Exception(
-        'Đã có lỗi xảy ra khi thêm thông tin người dùng ${e.toString()}',
-      );
+      debugPrint('Lỗi khi thêm người dùng: ${e.toString()}');
+      return Left(ServerFailure('Lỗi khi thêm người dùng: ${e.toString()}'));
     }
   }
 
   //lấy user bằng id
-  Future<UserModel?> getUserById(String id) async {
+  Future<Either<Failure, UserModel?>> getUserById(String id) async {
     try {
-      final snapshot = await db.child(id).get();
+      final snapshot =
+          await db.child(id).get().timeout(const Duration(seconds: 3));
       if (snapshot.exists) {
         final data = snapshot.value as Map<String, dynamic>;
-        return UserModel.fromJson(data);
+        return Right(UserModel.fromJson(data));
       } else {
-        return null;
+        return Left(EmptyDataFailure());
       }
+    } on TimeoutException {
+      debugPrint('Hết thời gian chờ khi lấy người dùng');
+      return Left(TimeoutFailure());
     } catch (e) {
       debugPrint('Lỗi khi lấy người dùng: ${e.toString()}');
-      return null;
+      return Left(ServerFailure('Lỗi khi lấy người dùng: ${e.toString()}'));
     }
   }
 
   //login user bằng email và password
-  Future<UserModel?> loginUser(String email, String password) async {
+  Future<Either<Failure, UserModel>> loginUser(
+      String email, String password) async {
     try {
-      final snapshot = await db.orderByChild('email').equalTo(email).get();
+      final snapshot = await db
+          .orderByChild('email')
+          .equalTo(email)
+          .get()
+          .timeout(const Duration(seconds: 3));
 
       if (snapshot.exists) {
         final data = Map<String, dynamic>.from(
@@ -51,36 +70,55 @@ class UserAuthRemoteDatasource {
         debugPrint('Mật khẩu nhập vào: $password');
 
         if (userData['password'] == password) {
-          return UserModel.fromJson(userData);
+          return Right(UserModel.fromJson(userData));
         }
+        return Left(InvalidDataFailure('Sai email hoặc mật khẩu.'));
       }
 
-      return null;
+      return Left(EmptyDataFailure());
+    } on TimeoutException {
+      debugPrint('Hết thời gian chờ khi đăng nhập');
+      return Left(TimeoutFailure());
     } catch (e) {
       debugPrint('Lỗi đăng nhập: $e');
-      return null;
+      return Left(ServerFailure('Lỗi khi đăng nhập: ${e.toString()}'));
     }
   }
 
   //Kiểm tra xem email đã tồn tại chưa
-  Future<bool> checkEmailExists(String email) async {
+  Future<Either<Failure, bool>> checkEmailExists(String email) async {
     try {
-      final snapshot = await db.orderByChild('email').equalTo(email).get();
-      return snapshot.exists;
+      final snapshot = await db
+          .orderByChild('email')
+          .equalTo(email)
+          .get()
+          .timeout(const Duration(seconds: 3));
+
+      return Right(snapshot.exists);
+    } on TimeoutException {
+      debugPrint('Hết thời gian chờ khi kiểm tra email');
+      return Left(TimeoutFailure());
     } catch (e) {
-      debugPrint('Lỗi kiểm tra email: ${e.toString()}');
-      return false;
+      debugPrint('Lỗi khi kiểm tra email: $e');
+      return Left(ServerFailure('Lỗi khi kiểm tra email: ${e.toString()}'));
     }
   }
 
   //cập nhật thông tin người dùng
-  Future<bool> updateUser(UserModel userData) async {
+  Future<Either<Failure, bool>> updateUser(UserModel userData) async {
     try {
-      await db.child(userData.id).update(userData.toJson());
-      return true;
+      await db
+          .child(userData.id)
+          .update(userData.toJson())
+          .timeout(const Duration(seconds: 3));
+      return Right(true);
+    } on TimeoutException {
+      debugPrint('Hết thời gian chờ khi cập nhật người dùng');
+      return Left(TimeoutFailure());
     } catch (e) {
       debugPrint('Lỗi khi cập nhật người dùng: ${e.toString()}');
-      return false;
+      return Left(
+          ServerFailure('Lỗi khi cập nhật người dùng: ${e.toString()}'));
     }
   }
 }

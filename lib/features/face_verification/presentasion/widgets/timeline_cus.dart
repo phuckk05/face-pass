@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 
 class TimelineCus extends StatelessWidget {
   final Attendance attendance;
+  final String name;
   final String lateTime;
   const TimelineCus({
     super.key,
     required this.attendance,
+    this.name = 'Nguyễn Văn A',
     this.lateTime = '15 phút',
   });
 
@@ -58,7 +60,7 @@ class TimelineCus extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        attendance.userId,
+                        name,
                         style: TextStyle(
                             color: Colors.black,
                             fontSize: 16,

@@ -1,6 +1,10 @@
+import 'dart:async';
+
+import 'package:facepass/core/errors/failrue.dart';
 import 'package:facepass/features/face_verification/data/models/attendance_model.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
+import 'package:fpdart/fpdart.dart';
 
 class AttendanceDatasource {
   final DatabaseReference db = FirebaseDatabase.instance.ref(
@@ -8,34 +12,51 @@ class AttendanceDatasource {
   );
 
   //thêm nhân viên đã check in or check out vào database
-  Future<bool> addAttendanceRecord(AttendanceModel attendance) async {
+  Future<Either<Failure, bool>> addAttendanceRecord(
+      AttendanceModel attendance) async {
     try {
-      await db.child(attendance.id).set(attendance.toJson());
-      return true;
+      await db
+          .child(attendance.id)
+          .set(attendance.toJson())
+          .timeout(const Duration(seconds: 10));
+      return const Right(true);
+    } on TimeoutException {
+      debugPrint('Hết thời gian chờ khi thêm bản ghi chấm công');
+      return Left(const TimeoutFailure());
     } catch (e) {
       debugPrint('Lỗi khi thêm bản ghi chấm công: $e');
-      return false;
+      return Left(ServerFailure(e.toString()));
     }
   }
 
   //lấy tất cả nhân viên đã check in or check out từ database
-  Future<List<AttendanceModel>> fetchAttendanceRecords() async {
+  Future<Either<Failure, List<AttendanceModel>>>
+      fetchAttendanceRecords() async {
     try {
-      final snapshot = await db.get();
+      final snapshot = await db.get().timeout(const Duration(seconds: 10));
       if (snapshot.exists) {
         final data = snapshot.value as Map<Object?, Object?>;
+        final List<AttendanceModel> models = [];
 
-        return data.values.map((record) {
-          final recordMap = (record as Map<Object?, Object?>).map(
-            (key, value) => MapEntry(key.toString(), value),
-          );
-          return AttendanceModel.fromJson(recordMap);
-        }).toList();
+        for (var record in data.values) {
+          try {
+            final recordMap = (record as Map<Object?, Object?>).map(
+              (key, value) => MapEntry(key.toString(), value),
+            );
+            models.add(AttendanceModel.fromJson(recordMap));
+          } catch (e) {
+            debugPrint('Lỗi khi parse bản ghi chấm công: $e');
+          }
+        }
+        return Right(models);
       } else {
-        return [];
+        return const Right([]);
       }
+    } on TimeoutException {
+      debugPrint('Hết thời gian chờ khi lấy bản ghi chấm công');
+      return Left(const TimeoutFailure());
     } catch (e) {
-      return [];
+      return Left(ServerFailure(e.toString()));
     }
   }
 

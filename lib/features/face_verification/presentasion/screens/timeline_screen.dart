@@ -48,6 +48,8 @@ class TimelineScreen extends StatelessWidget {
                     return TimelineCus(
                       attendance: attendanceCheckIn.elementAt(index),
                       lateTime: lateTime,
+                      name: attendanceCheckIn.elementAt(index).userName ??
+                          'Unknown',
                     );
                   },
                 );

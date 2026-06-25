@@ -32,32 +32,33 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     Emitter<AttendanceState> emit,
   ) async {
     emit(state.copyWith(status: AttendanceStateStatus.loading));
-    try {
-      final isSuccess = await pushAttendance.addAttendance(event.attendance);
-      if (isSuccess) {
-        emit(
-          state.copyWith(
-            status: AttendanceStateStatus.success,
-            data: [...state.data, event.attendance],
-            message: 'Chấm công thành công',
-          ),
-        );
-      } else {
-        emit(
-          state.copyWith(
-            status: AttendanceStateStatus.error,
-            message: 'Chấm công thất bại',
-          ),
-        );
-      }
-    } catch (e) {
-      emit(
+    final result = await pushAttendance.addAttendance(event.attendance);
+    result.fold(
+      (failure) => emit(
         state.copyWith(
           status: AttendanceStateStatus.error,
-          message: 'Đã xảy ra lỗi',
+          message: failure.message,
         ),
-      );
-    }
+      ),
+      (isSuccess) {
+        if (isSuccess) {
+          emit(
+            state.copyWith(
+              status: AttendanceStateStatus.success,
+              data: [...state.data, event.attendance],
+              message: 'Chấm công thành công',
+            ),
+          );
+        } else {
+          emit(
+            state.copyWith(
+              status: AttendanceStateStatus.error,
+              message: 'Chấm công thất bại',
+            ),
+          );
+        }
+      },
+    );
   }
 
   /* 
@@ -69,23 +70,22 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     Emitter<AttendanceState> emit,
   ) async {
     emit(state.copyWith(status: AttendanceStateStatus.loading, data: []));
-    try {
-      final attendances = await pushAttendance.getAttendances();
-      emit(
+    final result = await pushAttendance.getAttendances();
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          status: AttendanceStateStatus.error,
+          message: failure.message,
+          data: [],
+        ),
+      ),
+      (attendances) => emit(
         state.copyWith(
           status: AttendanceStateStatus.success,
           data: attendances,
         ),
-      );
-    } catch (e) {
-      emit(
-        state.copyWith(
-          status: AttendanceStateStatus.error,
-          message: 'Đã xảy ra lỗi',
-          data: [],
-        ),
-      );
-    }
+      ),
+    );
   }
 
   /* 
@@ -132,6 +132,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       final attendance = Attendance(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
           userId: event.userId,
+          userName: event.userName,
           checkedAt: now,
           type: AttendanceType.checkOut,
           status: now.isBefore(workEndTime)
@@ -151,6 +152,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     final attendance = Attendance(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         userId: event.userId,
+        userName: event.userName,
         checkedAt: now,
         type: AttendanceType.checkIn,
         status: now.isAfter(workStartTime)

@@ -1,6 +1,9 @@
+import 'package:fpdart/fpdart.dart';
+import '../../../../core/errors/failrue.dart';
 import '../entities/face_embedding.dart';
 
 abstract class RecognizedRepository {
-  Future<List<FaceEmbedding>> getRecognizedFaces();
-  Future<FaceEmbedding?> getRecognizedFaceByUserId(String userId);
+  Future<Either<Failure, List<FaceEmbedding>>> getRecognizedFaces();
+  Future<Either<Failure, FaceEmbedding>> getRecognizedFaceByUserId(
+      String userId);
 }

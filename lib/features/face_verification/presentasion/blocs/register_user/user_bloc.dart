@@ -13,27 +13,26 @@ class UserBloc extends Bloc<UserEvent, UserState> {
   final RegisterUserUseCase registerUserUseCase;
   UserBloc({required this.registerUserUseCase})
       : super(const UserState.initial()) {
-    on<RegisterUserEvent>(_registerUser);
+    // on<RegisterUserEvent>(_registerUser);
     on<GetUserByIdEvent>(_getUserById);
   }
 
   //đăng kí người dùng mới
-  Future<void> _registerUser(
-    RegisterUserEvent event,
-    Emitter<UserState> emit,
-  ) async {
-    emit(const UserState.loading());
-    try {
-      final user = await registerUserUseCase.callRegisterUser(
-        event.name,
-        event.department,
-        event.avatarUrl,
-      );
-      emit(UserState.success(user: user));
-    } catch (e) {
-      emit(UserState.failed(message: e.toString()));
-    }
-  }
+  // Future<void> _registerUser(
+  //   RegisterUserEvent event,
+  //   Emitter<UserState> emit,
+  // ) async {
+  //   emit(const UserState.loading());
+  //   final result = await registerUserUseCase.callRegisterUser(
+  //     event.name,
+  //     event.department,
+  //     event.avatarUrl,
+  //   );
+  //   result.fold(
+  //     (failure) => emit(UserState.failed(message: failure.message)),
+  //     (user) => emit(UserState.success(user: user)),
+  //   );
+  // }
 
   //lấy user theo id
   Future<void> _getUserById(
@@ -41,15 +40,16 @@ class UserBloc extends Bloc<UserEvent, UserState> {
     Emitter<UserState> emit,
   ) async {
     emit(const UserState.loading());
-    try {
-      final user = await registerUserUseCase.callGetUserById(event.id);
-      if (user == null) {
-        emit(const UserState.failed(message: 'Không tìm thấy người dùng'));
-      } else {
-        emit(UserState.success(user: user));
-      }
-    } catch (e) {
-      emit(UserState.failed(message: e.toString()));
-    }
+    final result = await registerUserUseCase.callGetUserById(event.id);
+    result.fold(
+      (failure) => emit(UserState.failed(message: failure.message)),
+      (user) {
+        if (user == null) {
+          emit(const UserState.failed(message: 'Không tìm thấy người dùng'));
+        } else {
+          emit(UserState.success(user: user));
+        }
+      },
+    );
   }
 }

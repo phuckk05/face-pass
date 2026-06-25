@@ -46,11 +46,6 @@ class CameraUtils {
   }
 }
 
-/*
- * Kiến trúc Background Isolate (Worker) để nhận diện khuôn mặt
- * Isolate này chạy độc lập với luồng chính của Flutter (Main UI Thread),
- * giúp load model TFLite cực nhanh và không làm treo màn hình khi xử lý ảnh.
- */
 class FaceRecognitionWorker {
   static SendPort? _sendPort;
 
@@ -69,11 +64,6 @@ class FaceRecognitionWorker {
     return await responsePort.first as List<double>?;
   }
 
-  /*
-   * Hàm entry point cho Isolate
-   * - Khởi tạo FaceDetector và Interpreter (mô hình AI) 1 lần duy nhất.
-   * - Lắng nghe liên tục các bức ảnh được gửi tới qua receivePort.
-   */
   static void _isolateEntry(List<dynamic> args) async {
     final SendPort sendPort = args[0];
     final Uint8List modelBytes = args[1];
@@ -100,7 +90,7 @@ class FaceRecognitionWorker {
 
         final bb = faces.first.boundingBox;
         final bytes = await File(path).readAsBytes();
-        final original = img.decodeJpg(bytes); // Faster decode
+        final original = img.decodeJpg(bytes);
         if (original == null) {
           replyPort.send(null);
           continue;

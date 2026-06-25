@@ -16,6 +16,7 @@ T _$identity<T>(T value) => value;
 mixin _$AttendanceModel {
   String get id;
   String get userId;
+  String get userName;
   DateTime get checkedAt;
   AttendanceType get type;
   AttendanceStatus get status;
@@ -41,6 +42,8 @@ mixin _$AttendanceModel {
             other is AttendanceModel &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.userId, userId) || other.userId == userId) &&
+            (identical(other.userName, userName) ||
+                other.userName == userName) &&
             (identical(other.checkedAt, checkedAt) ||
                 other.checkedAt == checkedAt) &&
             (identical(other.type, type) || other.type == type) &&
@@ -55,12 +58,12 @@ mixin _$AttendanceModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, userId, checkedAt, type,
-      status, similarity, gpsLocation, ipAddress);
+  int get hashCode => Object.hash(runtimeType, id, userId, userName, checkedAt,
+      type, status, similarity, gpsLocation, ipAddress);
 
   @override
   String toString() {
-    return 'AttendanceModel(id: $id, userId: $userId, checkedAt: $checkedAt, type: $type, status: $status, similarity: $similarity, gpsLocation: $gpsLocation, ipAddress: $ipAddress)';
+    return 'AttendanceModel(id: $id, userId: $userId, userName: $userName, checkedAt: $checkedAt, type: $type, status: $status, similarity: $similarity, gpsLocation: $gpsLocation, ipAddress: $ipAddress)';
   }
 }
 
@@ -73,6 +76,7 @@ abstract mixin class $AttendanceModelCopyWith<$Res> {
   $Res call(
       {String id,
       String userId,
+      String userName,
       DateTime checkedAt,
       AttendanceType type,
       AttendanceStatus status,
@@ -96,6 +100,7 @@ class _$AttendanceModelCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? userId = null,
+    Object? userName = null,
     Object? checkedAt = null,
     Object? type = null,
     Object? status = null,
@@ -111,6 +116,10 @@ class _$AttendanceModelCopyWithImpl<$Res>
       userId: null == userId
           ? _self.userId
           : userId // ignore: cast_nullable_to_non_nullable
+              as String,
+      userName: null == userName
+          ? _self.userName
+          : userName // ignore: cast_nullable_to_non_nullable
               as String,
       checkedAt: null == checkedAt
           ? _self.checkedAt
@@ -236,6 +245,7 @@ extension AttendanceModelPatterns on AttendanceModel {
     TResult Function(
             String id,
             String userId,
+            String userName,
             DateTime checkedAt,
             AttendanceType type,
             AttendanceStatus status,
@@ -248,8 +258,16 @@ extension AttendanceModelPatterns on AttendanceModel {
     final _that = this;
     switch (_that) {
       case _AttendanceModel() when $default != null:
-        return $default(_that.id, _that.userId, _that.checkedAt, _that.type,
-            _that.status, _that.similarity, _that.gpsLocation, _that.ipAddress);
+        return $default(
+            _that.id,
+            _that.userId,
+            _that.userName,
+            _that.checkedAt,
+            _that.type,
+            _that.status,
+            _that.similarity,
+            _that.gpsLocation,
+            _that.ipAddress);
       case _:
         return orElse();
     }
@@ -273,6 +291,7 @@ extension AttendanceModelPatterns on AttendanceModel {
     TResult Function(
             String id,
             String userId,
+            String userName,
             DateTime checkedAt,
             AttendanceType type,
             AttendanceStatus status,
@@ -284,8 +303,16 @@ extension AttendanceModelPatterns on AttendanceModel {
     final _that = this;
     switch (_that) {
       case _AttendanceModel():
-        return $default(_that.id, _that.userId, _that.checkedAt, _that.type,
-            _that.status, _that.similarity, _that.gpsLocation, _that.ipAddress);
+        return $default(
+            _that.id,
+            _that.userId,
+            _that.userName,
+            _that.checkedAt,
+            _that.type,
+            _that.status,
+            _that.similarity,
+            _that.gpsLocation,
+            _that.ipAddress);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -308,6 +335,7 @@ extension AttendanceModelPatterns on AttendanceModel {
     TResult? Function(
             String id,
             String userId,
+            String userName,
             DateTime checkedAt,
             AttendanceType type,
             AttendanceStatus status,
@@ -319,8 +347,16 @@ extension AttendanceModelPatterns on AttendanceModel {
     final _that = this;
     switch (_that) {
       case _AttendanceModel() when $default != null:
-        return $default(_that.id, _that.userId, _that.checkedAt, _that.type,
-            _that.status, _that.similarity, _that.gpsLocation, _that.ipAddress);
+        return $default(
+            _that.id,
+            _that.userId,
+            _that.userName,
+            _that.checkedAt,
+            _that.type,
+            _that.status,
+            _that.similarity,
+            _that.gpsLocation,
+            _that.ipAddress);
       case _:
         return null;
     }
@@ -333,6 +369,7 @@ class _AttendanceModel implements AttendanceModel {
   const _AttendanceModel(
       {required this.id,
       required this.userId,
+      required this.userName,
       required this.checkedAt,
       required this.type,
       required this.status,
@@ -346,6 +383,8 @@ class _AttendanceModel implements AttendanceModel {
   final String id;
   @override
   final String userId;
+  @override
+  final String userName;
   @override
   final DateTime checkedAt;
   @override
@@ -381,6 +420,8 @@ class _AttendanceModel implements AttendanceModel {
             other is _AttendanceModel &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.userId, userId) || other.userId == userId) &&
+            (identical(other.userName, userName) ||
+                other.userName == userName) &&
             (identical(other.checkedAt, checkedAt) ||
                 other.checkedAt == checkedAt) &&
             (identical(other.type, type) || other.type == type) &&
@@ -395,12 +436,12 @@ class _AttendanceModel implements AttendanceModel {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, userId, checkedAt, type,
-      status, similarity, gpsLocation, ipAddress);
+  int get hashCode => Object.hash(runtimeType, id, userId, userName, checkedAt,
+      type, status, similarity, gpsLocation, ipAddress);
 
   @override
   String toString() {
-    return 'AttendanceModel(id: $id, userId: $userId, checkedAt: $checkedAt, type: $type, status: $status, similarity: $similarity, gpsLocation: $gpsLocation, ipAddress: $ipAddress)';
+    return 'AttendanceModel(id: $id, userId: $userId, userName: $userName, checkedAt: $checkedAt, type: $type, status: $status, similarity: $similarity, gpsLocation: $gpsLocation, ipAddress: $ipAddress)';
   }
 }
 
@@ -415,6 +456,7 @@ abstract mixin class _$AttendanceModelCopyWith<$Res>
   $Res call(
       {String id,
       String userId,
+      String userName,
       DateTime checkedAt,
       AttendanceType type,
       AttendanceStatus status,
@@ -438,6 +480,7 @@ class __$AttendanceModelCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? userId = null,
+    Object? userName = null,
     Object? checkedAt = null,
     Object? type = null,
     Object? status = null,
@@ -453,6 +496,10 @@ class __$AttendanceModelCopyWithImpl<$Res>
       userId: null == userId
           ? _self.userId
           : userId // ignore: cast_nullable_to_non_nullable
+              as String,
+      userName: null == userName
+          ? _self.userName
+          : userName // ignore: cast_nullable_to_non_nullable
               as String,
       checkedAt: null == checkedAt
           ? _self.checkedAt

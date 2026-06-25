@@ -1,3 +1,5 @@
+import 'package:fpdart/fpdart.dart';
+import '../../../../core/errors/failrue.dart';
 import '../../domain/entities/face_embedding.dart';
 import '../../domain/repositories/recognized_repository.dart';
 import '../datasource/remote/faces_datasource.dart';
@@ -8,23 +10,16 @@ class RecognizedRepositoryImpl implements RecognizedRepository {
   RecognizedRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<List<FaceEmbedding>> getRecognizedFaces() async {
-    final List<FaceEmbeddingModel> models =
-        await remoteDataSource.fetchRecognizedFaces();
-    return models
-        .map((model) => FaceEmbeddingModelX(model).toEntity())
-        .toList();
+  Future<Either<Failure, List<FaceEmbedding>>> getRecognizedFaces() async {
+    final result = await remoteDataSource.fetchRecognizedFaces();
+    return result.map((models) =>
+        models.map((model) => FaceEmbeddingModelX(model).toEntity()).toList());
   }
 
   @override
-  Future<FaceEmbedding?> getRecognizedFaceByUserId(String userId) {
-    final model = remoteDataSource.fetchRecognizedFaceByUserId(userId);
-    return model.then((faceModel) {
-      if (faceModel != null) {
-        return FaceEmbeddingModelX(faceModel).toEntity();
-      } else {
-        return null;
-      }
-    });
+  Future<Either<Failure, FaceEmbedding>> getRecognizedFaceByUserId(
+      String userId) async {
+    final result = await remoteDataSource.fetchRecognizedFaceByUserId(userId);
+    return result.map((model) => FaceEmbeddingModelX(model).toEntity());
   }
 }

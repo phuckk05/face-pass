@@ -204,7 +204,7 @@ class _CameraScreenState extends State<CameraScreen> {
     final recognizedFacesBloc = context.read<RecognizedFacesBloc>();
     final recognizedFaces = recognizedFacesBloc.state.maybeWhen(
       hasData: (faces) => faces,
-      orElse: () => <List<FaceEmbedding>>[],
+      orElse: () => <FaceEmbedding>[],
     );
     if (recognizedFaces.isEmpty) {
       if (index == 1) {
@@ -229,7 +229,7 @@ class _CameraScreenState extends State<CameraScreen> {
           );
       return;
     }
-    for (var face in recognizedFaces as List<FaceEmbedding>) {
+    for (var face in recognizedFaces) {
       final similarity = CameraUtils.cosineSimilarity(
         newEmbedding,
         face.vector1,
@@ -243,9 +243,12 @@ class _CameraScreenState extends State<CameraScreen> {
               );
           return;
         }
-        if (!mounted) return;
+
         context.read<AttendanceBloc>().add(
-              CheckInOutEvent(userId: face.userId, similarity: similarity),
+              CheckInOutEvent(
+                  userId: face.userId,
+                  userName: widget.user.name,
+                  similarity: similarity),
             );
       } else {
         if (index == 1) {
@@ -315,21 +318,25 @@ class _CameraScreenState extends State<CameraScreen> {
     return BlocListener<AttendanceBloc, AttendanceState>(
       listener: (context, state) {
         state.when((data, status, message) {
-          // switch (status) {
-          //   case AttendanceStateStatus.success:
-          //     ScaffoldMessenger.of(context).showSnackBar(
-          //       SnackBar(content: Text(message ?? 'Chấm công thành công')),
-          //     );
-          //     break;
-          //   case AttendanceStateStatus.error:
-          //     ScaffoldMessenger.of(context).showSnackBar(
-          //       SnackBar(content: Text(message ?? 'Chấm công thất bại')),
-          //     );
-          //     break;
-          //   case AttendanceStateStatus.loading:
-          //     // Có thể hiển thị loading indicator nếu cần
-          //     break;
-          // }
+          switch (status) {
+            case AttendanceStateStatus.success:
+              context.read<RecognizingFaceBloc>().add(
+                    CheckSimilarityEvent(
+                        message: message ?? 'Chấm công thành công'),
+                  );
+              break;
+            case AttendanceStateStatus.error:
+              context.read<RecognizingFaceBloc>().add(
+                    CheckSimilarityEvent(
+                        message: message ?? 'Chấm công thất bại'),
+                  );
+              break;
+            case AttendanceStateStatus.loading:
+              // Có thể hiển thị loading indicator nếu cần
+              break;
+            case AttendanceStateStatus.initial:
+              break;
+          }
         });
       },
       child: BlocListener<RecognizedFacesBloc, RecognizedFacesState>(

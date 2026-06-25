@@ -25,14 +25,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     await Future.delayed(const Duration(seconds: 3));
     try {
       final user = await userUsecase.loginUser(event.email, event.password);
-      if (user != null) {
-        emit(state.copyWith(status: AuthStatus.loginSuccess, user: user));
-      } else {
-        emit(state.copyWith(
-            user: null,
-            status: AuthStatus.error,
-            errorMessage: 'Sai email hoặc mật khẩu.'));
-      }
+      user.fold(
+        (failure) {
+          emit(state.copyWith(
+              user: null,
+              status: AuthStatus.error,
+              errorMessage: failure.message));
+        },
+        (uesr) {
+          emit(state.copyWith(status: AuthStatus.loginSuccess, user: uesr));
+        },
+      );
     } catch (e) {
       emit(state.copyWith(
           user: null, status: AuthStatus.error, errorMessage: e.toString()));
@@ -47,7 +50,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     await Future.delayed(const Duration(seconds: 3));
     try {
       final user = await userUsecase.registerUser(event.user);
-      emit(state.copyWith(status: AuthStatus.registerSuccess, user: user));
+      user.fold(
+        (failure) {
+          emit(state.copyWith(
+              user: null,
+              status: AuthStatus.error,
+              errorMessage: failure.message));
+        },
+        (user) {
+          emit(state.copyWith(status: AuthStatus.registerSuccess, user: user));
+        },
+      );
     } catch (e) {
       emit(state.copyWith(
           user: null, status: AuthStatus.error, errorMessage: e.toString()));
@@ -60,13 +73,21 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(status: AuthStatus.loading));
     try {
       final exists = await userUsecase.checkEmailExists(event.email);
-      if (exists) {
-        emit(state.copyWith(
-            status: AuthStatus.emailExists,
-            errorMessage: '${event.email} đã tồn tại.'));
-      } else {
-        emit(state.copyWith(status: AuthStatus.emailAvailable));
-      }
+      exists.fold(
+        (failure) {
+          emit(state.copyWith(
+              status: AuthStatus.error, errorMessage: failure.message));
+        },
+        (exists) {
+          if (exists) {
+            emit(state.copyWith(
+                status: AuthStatus.emailExists,
+                errorMessage: '${event.email} đã tồn tại.'));
+          } else {
+            emit(state.copyWith(status: AuthStatus.emailAvailable));
+          }
+        },
+      );
     } catch (e) {
       emit(
           state.copyWith(status: AuthStatus.error, errorMessage: e.toString()));
@@ -84,14 +105,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(state.copyWith(status: AuthStatus.loading));
     try {
       final success = await userUsecase.updateUser(event.user);
-      if (success) {
+
+      success.fold(
+          (failure) => {
+                emit(state.copyWith(
+                    status: AuthStatus.error, errorMessage: failure.message))
+              }, (success) {
         emit(
             state.copyWith(status: AuthStatus.updateSuccess, user: event.user));
-      } else {
-        emit(state.copyWith(
-            status: AuthStatus.error,
-            errorMessage: 'Cập nhật thông tin người dùng thất bại.'));
-      }
+      });
     } catch (e) {
       emit(
           state.copyWith(status: AuthStatus.error, errorMessage: e.toString()));
