@@ -1,5 +1,6 @@
 import 'package:facepass/core/constants/app_colors.dart';
 import 'package:facepass/core/router/router_app.dart';
+import 'package:facepass/core/utils/scaffold_messenger_utils.dart';
 import 'package:facepass/core/widgets/button_cus.dart';
 import 'package:facepass/core/widgets/text_field_cus.dart';
 import 'package:facepass/features/auth/domain/entities/user.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/errors/failrue.dart';
 import '../../../../core/widgets/label_cus.dart';
 import '../../../face_verification/data/datasource/remote/faces_datasource.dart';
 import '../../../face_verification/data/repositories/recognized_repository_impl.dart';
@@ -78,14 +80,25 @@ class LoginScreen extends StatelessWidget {
     //nếu đã đăng kí khuôn mặt thì vào home, nếu chưa đăng kí thì khuôn mặt
     final hasRegistedFace =
         await registedFace.callGetRegistedFaceByUserId(user.id);
-    if (hasRegistedFace == null) {
-      debugPrint(
-          'Lỗi khi kiểm tra khuôn mặt đã đăng ký: Không thể lấy dữ liệu');
-      context.goNamed(cameraRouteName, extra: {'user': user, 'index': 1});
-      return;
-    }
 
-    context.goNamed(homeRouteName);
+    hasRegistedFace.fold(
+      (l) {
+        switch (l) {
+          case TimeoutFailure():
+            ScaffoldMessengerUtils.error(context, 'Thử lại sau');
+            break;
+          case EmptyDataFailure():
+            context.goNamed(cameraRouteName, extra: {'user': user, 'index': 1});
+            break;
+          default:
+            ScaffoldMessengerUtils.error(context, 'Đã xảy ra lỗi thử lại sau');
+        }
+      },
+      (r) {
+        debugPrint('Khuôn mặt đã đăng kí cho userId: ${user.id} là: $r');
+        context.goNamed(homeRouteName);
+      },
+    );
   }
 
   void _loginAsAdmin(BuildContext context, User user) {
