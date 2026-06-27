@@ -17,6 +17,10 @@ class CheckInOutEvent extends AttendanceEvent {
   final String userId;
   final String userName;
   final double similarity;
+  final String? imageBase64;
   CheckInOutEvent(
-      {required this.userId, required this.userName, required this.similarity});
+      {required this.userId,
+      required this.userName,
+      required this.similarity,
+      this.imageBase64});
 }

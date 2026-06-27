@@ -1,8 +1,10 @@
 import 'package:facepass/features/face_verification/presentasion/blocs/attendance/attendance_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:open_file/open_file.dart';
 
 import '../../../../core/utils/camera_utils.dart';
+import '../../../../core/utils/excel_services.dart';
 import '../../domain/entities/attendance.dart';
 import '../widgets/timeline_cus.dart';
 
@@ -20,6 +22,37 @@ class TimelineScreen extends StatelessWidget {
           ),
           title: Text('Đi trễ', style: TextStyle(color: Colors.white)),
           backgroundColor: const Color(0xFF2d6a4f),
+          actions: [
+            BlocBuilder<AttendanceBloc, AttendanceState>(
+              builder: (context, state) {
+                return IconButton(
+                  icon: const Icon(Icons.file_download, color: Colors.white),
+                  onPressed: state.data.isEmpty
+                      ? null
+                      : () async {
+                          final path =
+                              await ExcelServices().createExcelAttendanceFile(
+                            data: state.data,
+                            fileName: 'facepass_attendance',
+                          );
+
+                          if (!context.mounted) return;
+
+                          if (path == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Khong the xuat file Excel'),
+                              ),
+                            );
+                            return;
+                          }
+
+                          await OpenFile.open(path);
+                        },
+                );
+              },
+            ),
+          ],
         ),
         body: Padding(
           padding: const EdgeInsets.only(top: 16),
@@ -48,8 +81,7 @@ class TimelineScreen extends StatelessWidget {
                     return TimelineCus(
                       attendance: attendanceCheckIn.elementAt(index),
                       lateTime: lateTime,
-                      name: attendanceCheckIn.elementAt(index).userName ??
-                          'Unknown',
+                      name: attendanceCheckIn.elementAt(index).userName,
                     );
                   },
                 );

@@ -15,6 +15,7 @@ abstract class AttendanceModel with _$AttendanceModel {
     required AttendanceType type,
     required AttendanceStatus status,
     required double similarity,
+    String? imageBase64,
     required String gpsLocation,
     required String ipAddress,
   }) = _AttendanceModel;
@@ -34,6 +35,7 @@ extension AttendanceModelX on AttendanceModel {
         type: type,
         status: status,
         similarity: similarity,
+        imageBase64: imageBase64,
         gpsLocation: gpsLocation,
         ipAddress: ipAddress,
       );
@@ -48,6 +50,7 @@ extension AttendanceX on Attendance {
         type: type,
         status: status,
         similarity: similarity,
+        imageBase64: imageBase64,
         gpsLocation: gpsLocation,
         ipAddress: ipAddress,
       );

@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 
 import 'core/router/router_app.dart';
@@ -84,6 +85,7 @@ Future<void> init() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //tạo firebase
+  await dotenv.load(fileName: '.env');
   await Firebase.initializeApp(
     options: kIsWeb ? firebaseWebOptions : null,
   );

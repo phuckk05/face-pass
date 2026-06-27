@@ -261,7 +261,8 @@ class _CameraScreenState extends State<CameraScreen> {
             CheckInOutEvent(
                 userId: bestFace.userId,
                 userName: widget.user.name,
-                similarity: bestSimilarity),
+                similarity: bestSimilarity,
+                imageBase64: base64Encode(await image.readAsBytes())),
           );
       return;
     } else {

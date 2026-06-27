@@ -6,6 +6,7 @@ class Attendance {
   final AttendanceType type;
   final AttendanceStatus status;
   final double similarity;
+  final String? imageBase64;
 
   //thêm gps
   final String gpsLocation;
@@ -20,6 +21,7 @@ class Attendance {
     required this.type,
     required this.status,
     required this.similarity,
+    this.imageBase64,
     required this.gpsLocation,
     required this.ipAddress,
   });

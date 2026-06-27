@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:facepass/core/services/google_sheet_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -12,9 +15,13 @@ part 'attendance_bloc.freezed.dart';
 
 class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   final PushAttendance pushAttendance;
+  final GoogleSheetService googleSheetService;
 
-  AttendanceBloc({required this.pushAttendance})
-      : super(
+  AttendanceBloc({
+    required this.pushAttendance,
+    GoogleSheetService? googleSheetService,
+  })  : googleSheetService = googleSheetService ?? GoogleSheetService(),
+        super(
           const AttendanceState(
             status: AttendanceStateStatus.initial,
             data: [],
@@ -40,6 +47,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       ),
       (isSuccess) {
         if (isSuccess) {
+          unawaited(googleSheetService.pushAttendance(event.attendance));
           final nextData = [...state.data, event.attendance]
             ..sort((a, b) => a.checkedAt.compareTo(b.checkedAt));
           emit(
@@ -121,6 +129,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
                 ? AttendanceStatus.early
                 : AttendanceStatus.onTime),
         similarity: event.similarity,
+        imageBase64: event.imageBase64,
         gpsLocation: '${gpsLocation.latitude},${gpsLocation.longitude}',
         ipAddress: ipAddress,
       );
@@ -146,6 +155,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
 
           final nextData = [...state.data, attendance]
             ..sort((a, b) => a.checkedAt.compareTo(b.checkedAt));
+          unawaited(googleSheetService.pushAttendance(attendance));
           final actionText =
               nextType == AttendanceType.checkIn ? 'vào ca' : 'ra ca';
           emit(

@@ -21,6 +21,7 @@ mixin _$AttendanceModel {
   AttendanceType get type;
   AttendanceStatus get status;
   double get similarity;
+  String? get imageBase64;
   String get gpsLocation;
   String get ipAddress;
 
@@ -50,6 +51,8 @@ mixin _$AttendanceModel {
             (identical(other.status, status) || other.status == status) &&
             (identical(other.similarity, similarity) ||
                 other.similarity == similarity) &&
+            (identical(other.imageBase64, imageBase64) ||
+                other.imageBase64 == imageBase64) &&
             (identical(other.gpsLocation, gpsLocation) ||
                 other.gpsLocation == gpsLocation) &&
             (identical(other.ipAddress, ipAddress) ||
@@ -59,11 +62,11 @@ mixin _$AttendanceModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, userId, userName, checkedAt,
-      type, status, similarity, gpsLocation, ipAddress);
+      type, status, similarity, imageBase64, gpsLocation, ipAddress);
 
   @override
   String toString() {
-    return 'AttendanceModel(id: $id, userId: $userId, userName: $userName, checkedAt: $checkedAt, type: $type, status: $status, similarity: $similarity, gpsLocation: $gpsLocation, ipAddress: $ipAddress)';
+    return 'AttendanceModel(id: $id, userId: $userId, userName: $userName, checkedAt: $checkedAt, type: $type, status: $status, similarity: $similarity, imageBase64: $imageBase64, gpsLocation: $gpsLocation, ipAddress: $ipAddress)';
   }
 }
 
@@ -81,6 +84,7 @@ abstract mixin class $AttendanceModelCopyWith<$Res> {
       AttendanceType type,
       AttendanceStatus status,
       double similarity,
+      String? imageBase64,
       String gpsLocation,
       String ipAddress});
 }
@@ -105,6 +109,7 @@ class _$AttendanceModelCopyWithImpl<$Res>
     Object? type = null,
     Object? status = null,
     Object? similarity = null,
+    Object? imageBase64 = freezed,
     Object? gpsLocation = null,
     Object? ipAddress = null,
   }) {
@@ -137,6 +142,10 @@ class _$AttendanceModelCopyWithImpl<$Res>
           ? _self.similarity
           : similarity // ignore: cast_nullable_to_non_nullable
               as double,
+      imageBase64: freezed == imageBase64
+          ? _self.imageBase64
+          : imageBase64 // ignore: cast_nullable_to_non_nullable
+              as String?,
       gpsLocation: null == gpsLocation
           ? _self.gpsLocation
           : gpsLocation // ignore: cast_nullable_to_non_nullable
@@ -250,6 +259,7 @@ extension AttendanceModelPatterns on AttendanceModel {
             AttendanceType type,
             AttendanceStatus status,
             double similarity,
+            String? imageBase64,
             String gpsLocation,
             String ipAddress)?
         $default, {
@@ -266,6 +276,7 @@ extension AttendanceModelPatterns on AttendanceModel {
             _that.type,
             _that.status,
             _that.similarity,
+            _that.imageBase64,
             _that.gpsLocation,
             _that.ipAddress);
       case _:
@@ -296,6 +307,7 @@ extension AttendanceModelPatterns on AttendanceModel {
             AttendanceType type,
             AttendanceStatus status,
             double similarity,
+            String? imageBase64,
             String gpsLocation,
             String ipAddress)
         $default,
@@ -311,6 +323,7 @@ extension AttendanceModelPatterns on AttendanceModel {
             _that.type,
             _that.status,
             _that.similarity,
+            _that.imageBase64,
             _that.gpsLocation,
             _that.ipAddress);
       case _:
@@ -340,6 +353,7 @@ extension AttendanceModelPatterns on AttendanceModel {
             AttendanceType type,
             AttendanceStatus status,
             double similarity,
+            String? imageBase64,
             String gpsLocation,
             String ipAddress)?
         $default,
@@ -355,6 +369,7 @@ extension AttendanceModelPatterns on AttendanceModel {
             _that.type,
             _that.status,
             _that.similarity,
+            _that.imageBase64,
             _that.gpsLocation,
             _that.ipAddress);
       case _:
@@ -374,6 +389,7 @@ class _AttendanceModel implements AttendanceModel {
       required this.type,
       required this.status,
       required this.similarity,
+      this.imageBase64,
       required this.gpsLocation,
       required this.ipAddress});
   factory _AttendanceModel.fromJson(Map<String, dynamic> json) =>
@@ -393,6 +409,8 @@ class _AttendanceModel implements AttendanceModel {
   final AttendanceStatus status;
   @override
   final double similarity;
+  @override
+  final String? imageBase64;
   @override
   final String gpsLocation;
   @override
@@ -428,6 +446,8 @@ class _AttendanceModel implements AttendanceModel {
             (identical(other.status, status) || other.status == status) &&
             (identical(other.similarity, similarity) ||
                 other.similarity == similarity) &&
+            (identical(other.imageBase64, imageBase64) ||
+                other.imageBase64 == imageBase64) &&
             (identical(other.gpsLocation, gpsLocation) ||
                 other.gpsLocation == gpsLocation) &&
             (identical(other.ipAddress, ipAddress) ||
@@ -437,11 +457,11 @@ class _AttendanceModel implements AttendanceModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, userId, userName, checkedAt,
-      type, status, similarity, gpsLocation, ipAddress);
+      type, status, similarity, imageBase64, gpsLocation, ipAddress);
 
   @override
   String toString() {
-    return 'AttendanceModel(id: $id, userId: $userId, userName: $userName, checkedAt: $checkedAt, type: $type, status: $status, similarity: $similarity, gpsLocation: $gpsLocation, ipAddress: $ipAddress)';
+    return 'AttendanceModel(id: $id, userId: $userId, userName: $userName, checkedAt: $checkedAt, type: $type, status: $status, similarity: $similarity, imageBase64: $imageBase64, gpsLocation: $gpsLocation, ipAddress: $ipAddress)';
   }
 }
 
@@ -461,6 +481,7 @@ abstract mixin class _$AttendanceModelCopyWith<$Res>
       AttendanceType type,
       AttendanceStatus status,
       double similarity,
+      String? imageBase64,
       String gpsLocation,
       String ipAddress});
 }
@@ -485,6 +506,7 @@ class __$AttendanceModelCopyWithImpl<$Res>
     Object? type = null,
     Object? status = null,
     Object? similarity = null,
+    Object? imageBase64 = freezed,
     Object? gpsLocation = null,
     Object? ipAddress = null,
   }) {
@@ -517,6 +539,10 @@ class __$AttendanceModelCopyWithImpl<$Res>
           ? _self.similarity
           : similarity // ignore: cast_nullable_to_non_nullable
               as double,
+      imageBase64: freezed == imageBase64
+          ? _self.imageBase64
+          : imageBase64 // ignore: cast_nullable_to_non_nullable
+              as String?,
       gpsLocation: null == gpsLocation
           ? _self.gpsLocation
           : gpsLocation // ignore: cast_nullable_to_non_nullable
