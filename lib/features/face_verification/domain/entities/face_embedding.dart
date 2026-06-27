@@ -6,6 +6,7 @@ class FaceEmbedding {
   final List<double> vector3;
   final List<double> vector4;
   final List<double> vector5;
+  final String? imageBase64;
   final DateTime registeredAt;
 
   const FaceEmbedding({
@@ -16,6 +17,7 @@ class FaceEmbedding {
     required this.vector3,
     required this.vector4,
     required this.vector5,
+    this.imageBase64,
     required this.registeredAt,
   });
 
@@ -27,6 +29,7 @@ class FaceEmbedding {
     List<double>? vector3,
     List<double>? vector4,
     List<double>? vector5,
+    String? imageBase64,
     DateTime? registeredAt,
   }) {
     return FaceEmbedding(
@@ -37,6 +40,7 @@ class FaceEmbedding {
       vector3: vector3 ?? this.vector3,
       vector4: vector4 ?? this.vector4,
       vector5: vector5 ?? this.vector5,
+      imageBase64: imageBase64 ?? this.imageBase64,
       registeredAt: registeredAt ?? this.registeredAt,
     );
   }

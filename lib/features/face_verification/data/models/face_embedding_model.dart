@@ -14,6 +14,7 @@ abstract class FaceEmbeddingModel with _$FaceEmbeddingModel {
     required List<double> vector3,
     required List<double> vector4,
     required List<double> vector5,
+    String? imageBase64,
     required DateTime registeredAt,
   }) = _FaceEmbeddingModel;
 
@@ -32,6 +33,7 @@ extension FaceEmbeddingModelX on FaceEmbeddingModel {
         vector3: vector3,
         vector4: vector4,
         vector5: vector5,
+        imageBase64: imageBase64,
         registeredAt: registeredAt,
       );
 }
@@ -46,6 +48,7 @@ extension FaceEmbeddingX on FaceEmbedding {
         vector3: vector3,
         vector4: vector4,
         vector5: vector5,
+        imageBase64: imageBase64,
         registeredAt: registeredAt,
       );
 }

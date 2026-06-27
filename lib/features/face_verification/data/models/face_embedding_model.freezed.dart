@@ -21,6 +21,7 @@ mixin _$FaceEmbeddingModel {
   List<double> get vector3;
   List<double> get vector4;
   List<double> get vector5;
+  String? get imageBase64;
   DateTime get registeredAt;
 
   /// Create a copy of FaceEmbeddingModel
@@ -46,6 +47,8 @@ mixin _$FaceEmbeddingModel {
             const DeepCollectionEquality().equals(other.vector3, vector3) &&
             const DeepCollectionEquality().equals(other.vector4, vector4) &&
             const DeepCollectionEquality().equals(other.vector5, vector5) &&
+            (identical(other.imageBase64, imageBase64) ||
+                other.imageBase64 == imageBase64) &&
             (identical(other.registeredAt, registeredAt) ||
                 other.registeredAt == registeredAt));
   }
@@ -61,11 +64,12 @@ mixin _$FaceEmbeddingModel {
       const DeepCollectionEquality().hash(vector3),
       const DeepCollectionEquality().hash(vector4),
       const DeepCollectionEquality().hash(vector5),
+      imageBase64,
       registeredAt);
 
   @override
   String toString() {
-    return 'FaceEmbeddingModel(id: $id, userId: $userId, vector1: $vector1, vector2: $vector2, vector3: $vector3, vector4: $vector4, vector5: $vector5, registeredAt: $registeredAt)';
+    return 'FaceEmbeddingModel(id: $id, userId: $userId, vector1: $vector1, vector2: $vector2, vector3: $vector3, vector4: $vector4, vector5: $vector5, imageBase64: $imageBase64, registeredAt: $registeredAt)';
   }
 }
 
@@ -83,6 +87,7 @@ abstract mixin class $FaceEmbeddingModelCopyWith<$Res> {
       List<double> vector3,
       List<double> vector4,
       List<double> vector5,
+      String? imageBase64,
       DateTime registeredAt});
 }
 
@@ -106,6 +111,7 @@ class _$FaceEmbeddingModelCopyWithImpl<$Res>
     Object? vector3 = null,
     Object? vector4 = null,
     Object? vector5 = null,
+    Object? imageBase64 = freezed,
     Object? registeredAt = null,
   }) {
     return _then(_self.copyWith(
@@ -137,6 +143,10 @@ class _$FaceEmbeddingModelCopyWithImpl<$Res>
           ? _self.vector5
           : vector5 // ignore: cast_nullable_to_non_nullable
               as List<double>,
+      imageBase64: freezed == imageBase64
+          ? _self.imageBase64
+          : imageBase64 // ignore: cast_nullable_to_non_nullable
+              as String?,
       registeredAt: null == registeredAt
           ? _self.registeredAt
           : registeredAt // ignore: cast_nullable_to_non_nullable
@@ -246,6 +256,7 @@ extension FaceEmbeddingModelPatterns on FaceEmbeddingModel {
             List<double> vector3,
             List<double> vector4,
             List<double> vector5,
+            String? imageBase64,
             DateTime registeredAt)?
         $default, {
     required TResult orElse(),
@@ -253,8 +264,16 @@ extension FaceEmbeddingModelPatterns on FaceEmbeddingModel {
     final _that = this;
     switch (_that) {
       case _FaceEmbeddingModel() when $default != null:
-        return $default(_that.id, _that.userId, _that.vector1, _that.vector2,
-            _that.vector3, _that.vector4, _that.vector5, _that.registeredAt);
+        return $default(
+            _that.id,
+            _that.userId,
+            _that.vector1,
+            _that.vector2,
+            _that.vector3,
+            _that.vector4,
+            _that.vector5,
+            _that.imageBase64,
+            _that.registeredAt);
       case _:
         return orElse();
     }
@@ -283,14 +302,23 @@ extension FaceEmbeddingModelPatterns on FaceEmbeddingModel {
             List<double> vector3,
             List<double> vector4,
             List<double> vector5,
+            String? imageBase64,
             DateTime registeredAt)
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _FaceEmbeddingModel():
-        return $default(_that.id, _that.userId, _that.vector1, _that.vector2,
-            _that.vector3, _that.vector4, _that.vector5, _that.registeredAt);
+        return $default(
+            _that.id,
+            _that.userId,
+            _that.vector1,
+            _that.vector2,
+            _that.vector3,
+            _that.vector4,
+            _that.vector5,
+            _that.imageBase64,
+            _that.registeredAt);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -318,14 +346,23 @@ extension FaceEmbeddingModelPatterns on FaceEmbeddingModel {
             List<double> vector3,
             List<double> vector4,
             List<double> vector5,
+            String? imageBase64,
             DateTime registeredAt)?
         $default,
   ) {
     final _that = this;
     switch (_that) {
       case _FaceEmbeddingModel() when $default != null:
-        return $default(_that.id, _that.userId, _that.vector1, _that.vector2,
-            _that.vector3, _that.vector4, _that.vector5, _that.registeredAt);
+        return $default(
+            _that.id,
+            _that.userId,
+            _that.vector1,
+            _that.vector2,
+            _that.vector3,
+            _that.vector4,
+            _that.vector5,
+            _that.imageBase64,
+            _that.registeredAt);
       case _:
         return null;
     }
@@ -343,6 +380,7 @@ class _FaceEmbeddingModel implements FaceEmbeddingModel {
       required final List<double> vector3,
       required final List<double> vector4,
       required final List<double> vector5,
+      this.imageBase64,
       required this.registeredAt})
       : _vector1 = vector1,
         _vector2 = vector2,
@@ -397,6 +435,9 @@ class _FaceEmbeddingModel implements FaceEmbeddingModel {
   }
 
   @override
+  final String? imageBase64;
+
+  @override
   final DateTime registeredAt;
 
   /// Create a copy of FaceEmbeddingModel
@@ -426,6 +467,8 @@ class _FaceEmbeddingModel implements FaceEmbeddingModel {
             const DeepCollectionEquality().equals(other._vector3, _vector3) &&
             const DeepCollectionEquality().equals(other._vector4, _vector4) &&
             const DeepCollectionEquality().equals(other._vector5, _vector5) &&
+            (identical(other.imageBase64, imageBase64) ||
+                other.imageBase64 == imageBase64) &&
             (identical(other.registeredAt, registeredAt) ||
                 other.registeredAt == registeredAt));
   }
@@ -441,11 +484,12 @@ class _FaceEmbeddingModel implements FaceEmbeddingModel {
       const DeepCollectionEquality().hash(_vector3),
       const DeepCollectionEquality().hash(_vector4),
       const DeepCollectionEquality().hash(_vector5),
+      imageBase64,
       registeredAt);
 
   @override
   String toString() {
-    return 'FaceEmbeddingModel(id: $id, userId: $userId, vector1: $vector1, vector2: $vector2, vector3: $vector3, vector4: $vector4, vector5: $vector5, registeredAt: $registeredAt)';
+    return 'FaceEmbeddingModel(id: $id, userId: $userId, vector1: $vector1, vector2: $vector2, vector3: $vector3, vector4: $vector4, vector5: $vector5, imageBase64: $imageBase64, registeredAt: $registeredAt)';
   }
 }
 
@@ -465,6 +509,7 @@ abstract mixin class _$FaceEmbeddingModelCopyWith<$Res>
       List<double> vector3,
       List<double> vector4,
       List<double> vector5,
+      String? imageBase64,
       DateTime registeredAt});
 }
 
@@ -488,6 +533,7 @@ class __$FaceEmbeddingModelCopyWithImpl<$Res>
     Object? vector3 = null,
     Object? vector4 = null,
     Object? vector5 = null,
+    Object? imageBase64 = freezed,
     Object? registeredAt = null,
   }) {
     return _then(_FaceEmbeddingModel(
@@ -519,6 +565,10 @@ class __$FaceEmbeddingModelCopyWithImpl<$Res>
           ? _self._vector5
           : vector5 // ignore: cast_nullable_to_non_nullable
               as List<double>,
+      imageBase64: freezed == imageBase64
+          ? _self.imageBase64
+          : imageBase64 // ignore: cast_nullable_to_non_nullable
+              as String?,
       registeredAt: null == registeredAt
           ? _self.registeredAt
           : registeredAt // ignore: cast_nullable_to_non_nullable

@@ -1,5 +1,6 @@
 import 'package:facepass/features/admin/presentation/cubits/role_cubit.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -30,6 +31,16 @@ import 'features/face_verification/presentasion/blocs/register_user/user_bloc.da
 import 'features/face_verification/presentasion/cubit/camera_process_cubit.dart';
 
 final sl = GetIt.instance;
+
+const firebaseWebOptions = FirebaseOptions(
+  apiKey: 'AIzaSyAe8exOjTKkFsz_SAKI0asULgRCw49Bai4',
+  appId: '1:354030554787:android:7078ff32f8dceff821b916',
+  messagingSenderId: '354030554787',
+  projectId: 'autoshop-a65e1',
+  databaseURL:
+      'https://autoshop-a65e1-default-rtdb.asia-southeast1.firebasedatabase.app',
+  storageBucket: 'autoshop-a65e1.firebasestorage.app',
+);
 
 Future<void> init() async {
   // datasource
@@ -73,7 +84,9 @@ Future<void> init() async {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //tạo firebase
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: kIsWeb ? firebaseWebOptions : null,
+  );
   await init();
 
   runApp(

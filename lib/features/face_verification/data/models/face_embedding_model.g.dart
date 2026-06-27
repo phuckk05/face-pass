@@ -25,6 +25,7 @@ _FaceEmbeddingModel _$FaceEmbeddingModelFromJson(Map<String, dynamic> json) =>
       vector5: (json['vector5'] as List<dynamic>)
           .map((e) => (e as num).toDouble())
           .toList(),
+      imageBase64: json['imageBase64'] as String?,
       registeredAt: DateTime.parse(json['registeredAt'] as String),
     );
 
@@ -37,5 +38,6 @@ Map<String, dynamic> _$FaceEmbeddingModelToJson(_FaceEmbeddingModel instance) =>
       'vector3': instance.vector3,
       'vector4': instance.vector4,
       'vector5': instance.vector5,
+      'imageBase64': instance.imageBase64,
       'registeredAt': instance.registeredAt.toIso8601String(),
     };
