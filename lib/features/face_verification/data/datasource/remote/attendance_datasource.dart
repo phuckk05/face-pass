@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:facepass/core/errors/failrue.dart';
 import 'package:facepass/features/face_verification/data/models/attendance_model.dart';
+import 'package:facepass/features/face_verification/domain/entities/attendance.dart';
+import 'package:facepass/features/face_verification/domain/utils/attendance_log_utils.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:fpdart/fpdart.dart';
@@ -15,9 +17,15 @@ class AttendanceDatasource {
   Future<Either<Failure, bool>> addAttendanceRecord(
       AttendanceModel attendance) async {
     try {
+      final data = attendance.toJson()
+        ..['workDate'] = AttendanceLogUtils.workDate(attendance.checkedAt)
+        ..['timestamp'] = attendance.checkedAt.toIso8601String()
+        ..['type'] = attendance.type == AttendanceType.checkIn
+            ? 'CHECK_IN'
+            : 'CHECK_OUT';
       await db
           .child(attendance.id)
-          .set(attendance.toJson())
+          .set(data)
           .timeout(const Duration(seconds: 10));
       return const Right(true);
     } on TimeoutException {
@@ -43,6 +51,11 @@ class AttendanceDatasource {
             final recordMap = (record as Map<Object?, Object?>).map(
               (key, value) => MapEntry(key.toString(), value),
             );
+            recordMap['type'] = switch (recordMap['type']) {
+              'CHECK_IN' => 'checkIn',
+              'CHECK_OUT' => 'checkOut',
+              final value => value,
+            };
             models.add(AttendanceModel.fromJson(recordMap));
           } catch (e) {
             debugPrint('Lỗi khi parse bản ghi chấm công: $e');

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../domain/entities/attendance.dart';
+import '../../domain/utils/attendance_log_utils.dart';
+import '../blocs/attendance/attendance_bloc.dart';
 import '../blocs/recognizing_face/recognizing_face_bloc.dart';
 
 class ButtomPannelCus extends StatelessWidget {
@@ -8,6 +11,7 @@ class ButtomPannelCus extends StatelessWidget {
   final Widget recognizingBloc;
   final VoidCallback onScan;
   final VoidCallback onCheck;
+  final String? userId;
 
   const ButtomPannelCus({
     super.key,
@@ -15,6 +19,7 @@ class ButtomPannelCus extends StatelessWidget {
     required this.recognizingBloc,
     required this.onScan,
     required this.onCheck,
+    this.userId,
   });
 
   @override
@@ -24,7 +29,6 @@ class ButtomPannelCus extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Status output
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
@@ -36,8 +40,10 @@ class ButtomPannelCus extends StatelessWidget {
             child: recognizingBloc,
           ),
           const SizedBox(height: 10),
-
-          // Buttons
+          if (index != 1 && userId != null) ...[
+            _AttendanceTodaySummary(userId: userId!),
+            const SizedBox(height: 10),
+          ],
           Row(
             children: [
               Expanded(
@@ -61,14 +67,11 @@ class ButtomPannelCus extends StatelessWidget {
                       failed: (message) => true,
                       orElse: () => false,
                     );
+
                     return FilledButton(
                       onPressed: index == 1
-                          ? isProcessing
-                              ? onScan
-                              : null
-                          : isCheckSuccess
-                              ? onCheck
-                              : null,
+                          ? (isProcessing ? onScan : null)
+                          : (isCheckSuccess ? onCheck : null),
                       style: FilledButton.styleFrom(
                         backgroundColor: const Color(0xFF2d6a4f),
                         padding: const EdgeInsets.symmetric(vertical: 12),
@@ -77,35 +80,108 @@ class ButtomPannelCus extends StatelessWidget {
                         ),
                       ),
                       child: Text(
-                        index == 1
-                            ? 'Đăng ký khuôn mặt'
-                            : 'Nhận diện khuôn mặt',
+                        index == 1 ? 'Đăng ký khuôn mặt' : 'Chấm công',
                         style: const TextStyle(color: Colors.white),
                       ),
                     );
                   },
                 ),
               ),
-              // const SizedBox(width: 8),
-              // OutlinedButton.icon(
-              //   onPressed: onCheck,
-              //   icon: const Icon(Icons.face_retouching_natural, size: 16),
-              //   label: const Text('Verify'),
-              //   style: OutlinedButton.styleFrom(
-              //     foregroundColor: Colors.white70,
-              //     side: BorderSide(color: Colors.white.withOpacity(0.12)),
-              //     padding: const EdgeInsets.symmetric(
-              //       vertical: 12,
-              //       horizontal: 14,
-              //     ),
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(10),
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _AttendanceTodaySummary extends StatelessWidget {
+  final String userId;
+
+  const _AttendanceTodaySummary({required this.userId});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<AttendanceBloc, AttendanceState>(
+      builder: (context, state) {
+        final todayLogs = AttendanceLogUtils.logsForToday(
+          logs: state.data,
+          userId: userId,
+        );
+        final nextType = AttendanceLogUtils.nextType(todayLogs);
+        final completedShifts =
+            AttendanceLogUtils.completedShiftCount(todayLogs);
+        final statusText = nextType == AttendanceType.checkIn
+            ? (todayLogs.isEmpty ? 'Chưa vào ca' : 'Đã ra ca')
+            : 'Đang trong ca';
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.08),
+            border: Border.all(color: Colors.white.withOpacity(0.10)),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      statusText,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '$completedShifts ca hoàn thành',
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              if (todayLogs.isEmpty)
+                const Text(
+                  'Hôm nay chưa có lịch sử chấm công',
+                  style: TextStyle(color: Colors.white70),
+                )
+              else
+                ...todayLogs.map((log) => _AttendanceLogLine(log: log)),
+              if (AttendanceLogUtils.hasOpenShift(todayLogs)) ...[
+                const SizedBox(height: 4),
+                const Text(
+                  'Ca gần nhất: Chưa chấm ra',
+                  style: TextStyle(color: Colors.amberAccent),
+                ),
+              ],
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _AttendanceLogLine extends StatelessWidget {
+  final Attendance log;
+
+  const _AttendanceLogLine({required this.log});
+
+  @override
+  Widget build(BuildContext context) {
+    final time =
+        '${log.checkedAt.hour.toString().padLeft(2, '0')}:${log.checkedAt.minute.toString().padLeft(2, '0')}';
+    final label = log.type == AttendanceType.checkIn ? 'Vào' : 'Ra';
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4),
+      child: Text(
+        '$time - $label',
+        style: const TextStyle(color: Colors.white70),
       ),
     );
   }

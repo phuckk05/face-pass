@@ -234,38 +234,46 @@ class _CameraScreenState extends State<CameraScreen> {
           );
       return;
     }
+    FaceEmbedding? bestFace;
+    double bestSimilarity = 0;
     for (var face in recognizedFaces) {
       final similarity = CameraUtils.cosineSimilarity(
         newEmbedding,
         face.vector1,
       );
-      if (similarity > 0.8) {
-        if (index == 1) {
-          context.read<RecognizingFaceBloc>().add(
-                CheckSimilarityEvent(
-                  message: 'Khuôn mặt đã tồn tại, vui lòng thử lại',
-                ),
-              );
-          return;
-        }
+      if (similarity > bestSimilarity) {
+        bestSimilarity = similarity;
+        bestFace = face;
+      }
+    }
 
-        context.read<AttendanceBloc>().add(
-              CheckInOutEvent(
-                  userId: face.userId,
-                  userName: widget.user.name,
-                  similarity: similarity),
-            );
-      } else {
-        if (index == 1) {
-          _scanFace();
-          return;
-        }
+    if (bestFace != null && bestSimilarity > 0.8) {
+      if (index == 1) {
         context.read<RecognizingFaceBloc>().add(
               CheckSimilarityEvent(
-                message: 'Khuôn mặt không khớp, vui lòng thử lại',
+                message: 'Khuôn mặt đã tồn tại, vui lòng thử lại',
               ),
             );
+        return;
       }
+
+      context.read<AttendanceBloc>().add(
+            CheckInOutEvent(
+                userId: bestFace.userId,
+                userName: widget.user.name,
+                similarity: bestSimilarity),
+          );
+      return;
+    } else {
+      if (index == 1) {
+        _scanFace();
+        return;
+      }
+      context.read<RecognizingFaceBloc>().add(
+            CheckSimilarityEvent(
+              message: 'Khuôn mặt không khớp, vui lòng thử lại',
+            ),
+          );
     }
   }
 
@@ -429,6 +437,7 @@ class _CameraScreenState extends State<CameraScreen> {
                 right: 0,
                 child: ButtomPannelCus(
                   index: widget.index,
+                  userId: widget.user.id,
                   recognizingBloc: recognizingBloc,
                   onScan: () => _checkSimilarity(1),
                   onCheck: () => _checkSimilarity(null),

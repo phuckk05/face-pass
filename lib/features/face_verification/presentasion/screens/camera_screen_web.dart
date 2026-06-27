@@ -16,7 +16,7 @@ class CameraScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final title = index == 1 ? 'Dang ky khuon mat' : 'Cham cong';
+    final title = index == 1 ? 'Đăng ký khuôn mặt' : 'Chấm công';
 
     return Scaffold(
       appBar: AppBar(
@@ -42,14 +42,14 @@ class CameraScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Tinh nang camera va nhan dien khuon mat chua ho tro tren web.',
+                  'Tính năng camera và nhận diện khuôn mặt chưa hỗ trợ trên web.',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 16),
                 FilledButton(
                   onPressed: () => context.goNamed(homeRouteName),
-                  child: const Text('Quay ve trang chu'),
+                  child: const Text('Quay về trang chủ'),
                 ),
               ],
             ),

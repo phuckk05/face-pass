@@ -1,32 +1,30 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../../../core/utils/permission_utils.dart';
 import '../../../domain/entities/attendance.dart';
 import '../../../domain/usecase/attendance_uc.dart';
-import '../../../../../core/utils/permission_utils.dart';
+import '../../../domain/utils/attendance_log_utils.dart';
 
 part 'attendance_event.dart';
 part 'attendance_state.dart';
 part 'attendance_bloc.freezed.dart';
 
-/* BLoC quản lý trạng thái của quá trình Chấm Công (Check-in / Check-out) */
 class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   final PushAttendance pushAttendance;
+
   AttendanceBloc({required this.pushAttendance})
       : super(
-            AttendanceState(status: AttendanceStateStatus.initial, data: [])) {
-    /* 1 */
+          const AttendanceState(
+            status: AttendanceStateStatus.initial,
+            data: [],
+          ),
+        ) {
     on<AddAttendanceEvent>(_addAttendance);
-    /* 2 */
     on<FetchAttendancesEvent>(_getAttendances);
-    /* 3 */
     on<CheckInOutEvent>(_checkInOutEvent);
   }
 
-  /* 
-   * Xử lý sự kiện thêm bản ghi chấm công lên server (Firebase)
-   * Thay đổi trạng thái sang loading, gọi usecase và emit trạng thái mới (thành công hoặc lỗi)
-   */
   void _addAttendance(
     AddAttendanceEvent event,
     Emitter<AttendanceState> emit,
@@ -42,10 +40,12 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       ),
       (isSuccess) {
         if (isSuccess) {
+          final nextData = [...state.data, event.attendance]
+            ..sort((a, b) => a.checkedAt.compareTo(b.checkedAt));
           emit(
             state.copyWith(
               status: AttendanceStateStatus.success,
-              data: [...state.data, event.attendance],
+              data: nextData,
               message: 'Chấm công thành công',
             ),
           );
@@ -61,10 +61,6 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     );
   }
 
-  /* 
-   * Lấy toàn bộ danh sách điểm danh từ server
-   * Sử dụng khi mới khởi tạo ứng dụng hoặc refresh lại lịch sử
-   */
   void _getAttendances(
     FetchAttendancesEvent event,
     Emitter<AttendanceState> emit,
@@ -79,91 +75,95 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
           data: [],
         ),
       ),
-      (attendances) => emit(
-        state.copyWith(
-          status: AttendanceStateStatus.success,
-          data: attendances,
-        ),
-      ),
+      (attendances) {
+        final sorted = [...attendances]
+          ..sort((a, b) => a.checkedAt.compareTo(b.checkedAt));
+        emit(
+          state.copyWith(
+            status: AttendanceStateStatus.success,
+            data: sorted,
+          ),
+        );
+      },
     );
   }
 
-  /* 
-   * Logic kiểm tra và quyết định việc Check-in hay Check-out 
-   * - Tìm kiếm lịch sử điểm danh của user trong ngày hôm nay.
-   * - Nếu chưa có bản ghi nào: Đánh dấu là Check-in.
-   * - Nếu đã có Check-in nhưng chưa Check-out: Đánh dấu là Check-out.
-   * - Lấy kèm toạ độ GPS và IP từ thiết bị.
-   */
   void _checkInOutEvent(
     CheckInOutEvent event,
     Emitter<AttendanceState> emit,
   ) async {
-    final attendances = state.data;
+    emit(state.copyWith(status: AttendanceStateStatus.loading));
+
     final now = DateTime.now();
-
-    final userRecords = attendances.where((record) {
-      return record.userId == event.userId &&
-          record.checkedAt.year == now.year &&
-          record.checkedAt.month == now.month &&
-          record.checkedAt.day == now.day;
-    }).toList();
-
+    final todayLogs = AttendanceLogUtils.logsForDate(
+      logs: state.data,
+      userId: event.userId,
+      date: now,
+    );
+    final nextType = AttendanceLogUtils.nextType(todayLogs);
     final workStartTime = DateTime(now.year, now.month, now.day, 8);
     final workEndTime = DateTime(now.year, now.month, now.day, 17);
 
-    final hasCheckedOut =
-        userRecords.any((e) => e.type == AttendanceType.checkOut);
-
-    if (hasCheckedOut) {
-      emit(state.copyWith(
-          status: AttendanceStateStatus.error,
-          message: 'Bạn đã check out hôm nay rồi'));
-      return;
-    }
-
-    final gpsLocation = await PermissionUtils.getGPSLocation();
-    final ipAddress = await PermissionUtils.getIpAddress();
-
-    final hasCheckedIn =
-        userRecords.any((e) => e.type == AttendanceType.checkIn);
-
-    if (hasCheckedIn) {
+    try {
+      final gpsLocation = await PermissionUtils.getGPSLocation();
+      final ipAddress = await PermissionUtils.getIpAddress();
       final attendance = Attendance(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          userId: event.userId,
-          userName: event.userName,
-          checkedAt: now,
-          type: AttendanceType.checkOut,
-          status: now.isBefore(workEndTime)
-              ? AttendanceStatus.early
-              : AttendanceStatus.onTime,
-          similarity: event.similarity,
-          gpsLocation: '${gpsLocation.latitude},${gpsLocation.longitude}',
-          ipAddress: ipAddress);
-
-      add(AddAttendanceEvent(attendance: attendance));
-      emit(state.copyWith(
-          status: AttendanceStateStatus.success,
-          message: 'Check out thành công'));
-      return;
-    }
-
-    final attendance = Attendance(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        id: now.microsecondsSinceEpoch.toString(),
         userId: event.userId,
         userName: event.userName,
         checkedAt: now,
-        type: AttendanceType.checkIn,
-        status: now.isAfter(workStartTime)
-            ? AttendanceStatus.late
-            : AttendanceStatus.onTime,
+        type: nextType,
+        status: nextType == AttendanceType.checkIn
+            ? (now.isAfter(workStartTime)
+                ? AttendanceStatus.late
+                : AttendanceStatus.onTime)
+            : (now.isBefore(workEndTime)
+                ? AttendanceStatus.early
+                : AttendanceStatus.onTime),
         similarity: event.similarity,
         gpsLocation: '${gpsLocation.latitude},${gpsLocation.longitude}',
-        ipAddress: ipAddress);
+        ipAddress: ipAddress,
+      );
 
-    add(AddAttendanceEvent(attendance: attendance));
-    emit(state.copyWith(
-        status: AttendanceStateStatus.success, message: 'Check in thành công'));
+      final result = await pushAttendance.addAttendance(attendance);
+      result.fold(
+        (failure) => emit(
+          state.copyWith(
+            status: AttendanceStateStatus.error,
+            message: failure.message,
+          ),
+        ),
+        (isSuccess) {
+          if (!isSuccess) {
+            emit(
+              state.copyWith(
+                status: AttendanceStateStatus.error,
+                message: 'Chấm công thất bại',
+              ),
+            );
+            return;
+          }
+
+          final nextData = [...state.data, attendance]
+            ..sort((a, b) => a.checkedAt.compareTo(b.checkedAt));
+          final actionText =
+              nextType == AttendanceType.checkIn ? 'vào ca' : 'ra ca';
+          emit(
+            state.copyWith(
+              status: AttendanceStateStatus.success,
+              data: nextData,
+              message: 'Chấm công $actionText thành công',
+            ),
+          );
+        },
+      );
+    } catch (_) {
+      emit(
+        state.copyWith(
+          status: AttendanceStateStatus.error,
+          message: 'Không thể lấy vị trí hoặc lưu chấm công',
+        ),
+      );
+    }
   }
 }
