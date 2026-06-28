@@ -1,3 +1,4 @@
+import 'package:facepass/core/utils/scaffold_messenger_utils.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/attendance/attendance_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -39,11 +40,8 @@ class TimelineScreen extends StatelessWidget {
                           if (!context.mounted) return;
 
                           if (path == null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Khong the xuat file Excel'),
-                              ),
-                            );
+                            ScaffoldMessengerUtils.error(
+                                context, 'Không thể xuất file Excel');
                             return;
                           }
 

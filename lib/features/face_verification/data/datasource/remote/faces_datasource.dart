@@ -17,7 +17,7 @@ class FacesRemoteDataSource {
   Future<Either<Failure, List<FaceEmbeddingModel>>>
       fetchRecognizedFaces() async {
     try {
-      final snapshot = await db.get().timeout(const Duration(seconds: 3));
+      final snapshot = await db.get().timeout(const Duration(seconds: 10));
       if (snapshot.exists) {
         final data = snapshot.value as Map<Object?, Object?>;
 
@@ -48,7 +48,7 @@ class FacesRemoteDataSource {
           .equalTo(userId)
           .limitToFirst(1)
           .get()
-          .timeout(const Duration(seconds: 3));
+          .timeout(const Duration(seconds: 10));
       if (snapshot.exists) {
         final data = snapshot.value as Map<Object?, Object?>;
         final faceMap = (data.values.first as Map<Object?, Object?>).map(
@@ -76,7 +76,7 @@ class FacesRemoteDataSource {
       await db
           .child(face.id)
           .set(face.toJson())
-          .timeout(const Duration(seconds: 3));
+          .timeout(const Duration(seconds: 10));
       return const Right(true);
     } on TimeoutException {
       debugPrint('Hết thời gian chờ khi thêm khuôn mặt');

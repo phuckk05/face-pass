@@ -14,7 +14,7 @@ class UserRemoteDatasource {
       await db
           .child(userData.id)
           .set(userData.toJson())
-          .timeout(const Duration(seconds: 3));
+          .timeout(const Duration(seconds: 10));
       return Right(userData);
     } on TimeoutException {
       return Left(const TimeoutFailure());
@@ -29,7 +29,7 @@ class UserRemoteDatasource {
   Future<Either<Failure, UserModel>> getUserById(String id) async {
     try {
       final snapshot =
-          await db.child(id).get().timeout(const Duration(seconds: 3));
+          await db.child(id).get().timeout(const Duration(seconds: 10));
       if (snapshot.exists) {
         final data = snapshot.value as Map<Object?, Object?>;
         final mapData =
