@@ -28,18 +28,18 @@ class RegisterScreen extends StatelessWidget {
   }
 
   void _handleRegister(BuildContext context) {
-    final user = User(
+    final staff = User(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       email: _emailController.text,
       password: _passwordController.text,
       name: _nameController.text,
       phoneNumber: _phoneController.text,
       department: _departmentController.text,
-      role: 'user',
+      role: 'staff',
       createdAt: DateTime.now(),
     );
 
-    context.read<AuthBloc>().add(AuthRegister(user: user));
+    context.read<AuthBloc>().add(AuthRegister(user: staff));
   }
 
   //bloc để lắng nghe trạng thái đăng ký

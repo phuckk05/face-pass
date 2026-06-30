@@ -52,63 +52,103 @@ class LoginScreen extends StatelessWidget {
             case 'admin':
               _loginAsAdmin(context, state.user!);
               break;
-            case 'user':
-              _loginAsUser(context, state.user!);
+            case 'staff':
+              _loginAsStaff(context, state.user!);
               break;
+            case 'manager':
+              _loginAsManager(context, state.user!);
+              break;
+
             default:
           }
         } else if (state.status == AuthStatus.error) {
           // Xử lý khi đăng nhập thất bại
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.errorMessage ?? 'Đăng nhập thất bại')),
-          );
+          ScaffoldMessengerUtils.error(
+              context, state.errorMessage ?? 'Đăng nhập thất bại');
         }
       },
       child: child,
     );
   }
 
-  void _loginAsUser(BuildContext context, User user) async {
+  void _loginAsStaff(BuildContext context, User user) async {
     final hasSetup = user.name.isEmpty;
 
     //nếu đã setup thì vào home, nếu chưa setup thì vào setup
     if (hasSetup) {
       context.goNamed(setupRouteName, extra: {'user': user});
-      return;
+    } else {
+      final hasFaceRegistered = await _checkHasFaceRegistered(context, user);
+      switch (hasFaceRegistered) {
+        case true:
+          context.goNamed(homeRouteName, extra: {'user': user});
+          break;
+        case false:
+          context.goNamed(cameraRouteName, extra: {'user': user, 'index': 1});
+          break;
+        case null:
+          ScaffoldMessengerUtils.error(context, 'Đã xảy ra lỗi thử lại sau');
+          return;
+      }
     }
+  }
 
-    //nếu đã đăng kí khuôn mặt thì vào home, nếu chưa đăng kí thì khuôn mặt
+  void _loginAsAdmin(BuildContext context, User user) {
+    final hasSetup = user.name.isEmpty;
+
+    if (hasSetup) {
+      context.goNamed(setupRouteName, extra: {'user': user});
+    } else {
+      context.goNamed(adminHomeRouteName, extra: {'user': user});
+    }
+  }
+
+  void _loginAsManager(BuildContext context, User user) async {
+    final hasSetup = user.name.isEmpty;
+
+    if (hasSetup) {
+      context.goNamed(setupRouteName, extra: {'user': user});
+    } else {
+      final hasFaceRegistered = await _checkHasFaceRegistered(context, user);
+      switch (hasFaceRegistered) {
+        case true:
+          context.goNamed(managerHomeRouteName, extra: {'user': user});
+          break;
+        case false:
+          context.goNamed(cameraRouteName, extra: {'user': user, 'index': 1});
+          break;
+        case null:
+          ScaffoldMessengerUtils.error(context, 'Đã xảy ra lỗi thử lại sau');
+          return;
+      }
+    }
+  }
+
+  Future<bool?> _checkHasFaceRegistered(BuildContext context, User user) async {
+    //kiểm tra xem user đã đăng kí khuôn mặt chưa
     final hasRegistedFace =
         await registedFace.callGetRegistedFaceByUserId(user.id);
 
-    hasRegistedFace.fold(
+    return hasRegistedFace.fold(
       (l) {
         switch (l) {
           case TimeoutFailure():
             ScaffoldMessengerUtils.error(context, 'Thử lại sau');
             break;
-          case EmptyDataFailure():
-            context.goNamed(cameraRouteName, extra: {'user': user, 'index': 1});
-            break;
           default:
             ScaffoldMessengerUtils.error(context, 'Đã xảy ra lỗi thử lại sau');
         }
+        return null;
       },
       (r) {
-        debugPrint('Khuôn mặt đã đăng kí cho userId: ${user.id} là: $r');
-        context.goNamed(homeRouteName);
+        if (r == null) {
+          debugPrint('Chưa đăng kí khuôn mặt, chuyển sang camera');
+          context.goNamed(cameraRouteName, extra: {'user': user, 'index': 1});
+          return false;
+        }
+        return true;
       },
     );
-  }
-
-  void _loginAsAdmin(BuildContext context, User user) {
-    final hasSetup = user.name.isNotEmpty;
-
-    if (hasSetup) {
-      context.goNamed(adminHomeRouteName);
-    } else {
-      context.goNamed(setupRouteName, extra: {'user': user});
-    }
   }
 
   @override

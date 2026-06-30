@@ -109,8 +109,26 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       date: now,
     );
     final nextType = AttendanceLogUtils.nextType(todayLogs);
-    final workStartTime = DateTime(now.year, now.month, now.day, 8);
-    final workEndTime = DateTime(now.year, now.month, now.day, 17);
+
+    //ca 1: 9h - 13h
+    final workStartTime1 = DateTime(now.year, now.month, now.day, 9);
+    final workEndTime1 = DateTime(now.year, now.month, now.day, 13);
+    //ca 2: 14h - 18h
+    final workStartTime2 = DateTime(now.year, now.month, now.day, 14);
+    final workEndTime2 = DateTime(now.year, now.month, now.day, 18);
+
+    //lấy biên của ca làm việc hiện tại, bằng nằm trong khảng thời gian + 60 phút, để tránh trường hợp checkin trước giờ làm việc
+    bool isInWorkTime() {
+      if (now.isAfter(workStartTime1.subtract(const Duration(minutes: 60))) &&
+          now.isBefore(workEndTime1.add(const Duration(minutes: 60)))) {
+        return true;
+      } else if (now
+              .isAfter(workStartTime2.subtract(const Duration(minutes: 60))) &&
+          now.isBefore(workEndTime2.add(const Duration(minutes: 60)))) {
+        return false;
+      }
+      return true;
+    }
 
     try {
       final gpsLocation = await PermissionUtils.getGPSLocation();
@@ -122,10 +140,10 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         checkedAt: now,
         type: nextType,
         status: nextType == AttendanceType.checkIn
-            ? (now.isAfter(workStartTime)
+            ? (now.isAfter(workStartTime1)
                 ? AttendanceStatus.late
                 : AttendanceStatus.onTime)
-            : (now.isBefore(workEndTime)
+            : (now.isBefore(workEndTime1)
                 ? AttendanceStatus.early
                 : AttendanceStatus.onTime),
         similarity: event.similarity,

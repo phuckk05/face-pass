@@ -17,9 +17,10 @@ class RecognizedRepositoryImpl implements RecognizedRepository {
   }
 
   @override
-  Future<Either<Failure, FaceEmbedding>> getRecognizedFaceByUserId(
+  Future<Either<Failure, FaceEmbedding?>> getRecognizedFaceByUserId(
       String userId) async {
     final result = await remoteDataSource.fetchRecognizedFaceByUserId(userId);
-    return result.map((model) => FaceEmbeddingModelX(model).toEntity());
+    return result.map((model) =>
+        model != null ? FaceEmbeddingModelX(model).toEntity() : null);
   }
 }

@@ -21,7 +21,7 @@ class DropBoxCus extends StatelessWidget {
         underline: const SizedBox(),
         hint: const Text('Chọn vai trò'),
         value: selectedValue,
-        items: <String>['admin', 'user'].map((String value) {
+        items: <String>['admin', 'staff', 'manager'].map((String value) {
           return DropdownMenuItem<String>(
             value: value,
             child: Text(value),

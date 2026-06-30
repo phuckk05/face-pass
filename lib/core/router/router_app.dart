@@ -10,6 +10,7 @@ import '../../features/auth/presentation/screens/register_screen.dart';
 import '../../features/auth/presentation/screens/setup_screen.dart';
 import '../../features/face_verification/presentasion/screens/home_screen.dart';
 import '../../features/face_verification/presentasion/screens/timeline_screen.dart';
+import '../../features/manager/presentation/screens/manager_home_screen.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 //path
@@ -21,6 +22,8 @@ final String registerRoute = '/register';
 final String homeRoute = '/home';
 final String adminHomeRoute = '/admin-home';
 final String grantAccountRoute = '/grant-account';
+
+final String managerHomeRoute = '/manager-home';
 
 final String setupRoute = '/setup';
 
@@ -36,6 +39,8 @@ final String setupRouteName = 'setup';
 final String homeRouteName = 'home';
 final String adminHomeRouteName = 'admin-home';
 final String grantAccountRouteName = 'grant-account';
+
+final String managerHomeRouteName = 'manager-home';
 
 final String cameraRouteName = 'camera';
 final String timelineRouteName = 'timeline';
@@ -104,6 +109,11 @@ final GoRouter router = GoRouter(
       path: timelineRoute,
       name: timelineRouteName,
       builder: (context, state) => const TimelineScreen(),
+    ),
+    GoRoute(
+      path: managerHomeRoute,
+      name: managerHomeRouteName,
+      builder: (context, state) => const ManagerHomeScreen(),
     )
   ],
 );

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/errors/failrue.dart';
 import '../../../../core/widgets/button_cus.dart';
 import '../../../../core/widgets/text_field_cus.dart';
 import '../../../face_verification/data/datasource/remote/faces_datasource.dart';
@@ -77,23 +78,68 @@ class SetupScreen extends StatelessWidget {
   void _loginAsUser(BuildContext context, User user) async {
     final hasRegistedFace =
         await registedFace.callGetRegistedFaceByUserId(user.id);
-    if (hasRegistedFace == null) {
-      debugPrint(
-          'Lỗi khi kiểm tra khuôn mặt đã đăng ký: Không thể lấy dữ liệu');
-      context.goNamed(cameraRouteName, extra: {'user': user, 'index': 1});
-      return;
-    }
 
-    switch (user.role) {
-      case 'admin':
-        context.goNamed(adminHomeRouteName, extra: {'user': user});
+    hasRegistedFace.fold((l) {
+      ScaffoldMessengerUtils.error(context, l.message);
+      debugPrint('Error checking registered face: ${l.message}');
+      return;
+    },
+        (r) => {
+              if (r == null)
+                {
+                  context.goNamed(cameraRouteName,
+                      extra: {'user': user, 'index': 1})
+                }
+            });
+
+    switch (await _checkHasFaceRegistered(context, user)) {
+      case null:
+        ScaffoldMessengerUtils.error(context, 'Đã xảy ra lỗi, thử lại sau');
+        return;
+      case true:
+        switch (user.role) {
+          case 'admin':
+            context.goNamed(adminHomeRouteName, extra: {'user': user});
+            break;
+          case 'staff':
+            context.goNamed(homeRouteName, extra: {'user': user});
+            break;
+          case 'manager':
+            context.goNamed(managerHomeRouteName, extra: {'user': user});
+          default:
+            context.goNamed(loginRouteName);
+        }
+      case false:
+        context.goNamed(cameraRouteName, extra: {'user': user, 'index': 1});
         break;
-      case 'user':
-        context.goNamed(homeRouteName, extra: {'user': user});
-        break;
-      default:
-        context.goNamed(loginRouteName);
     }
+  }
+
+  Future<bool?> _checkHasFaceRegistered(BuildContext context, User user) async {
+    //kiểm tra xem user đã đăng kí khuôn mặt chưa
+    final hasRegistedFace =
+        await registedFace.callGetRegistedFaceByUserId(user.id);
+
+    return hasRegistedFace.fold(
+      (l) {
+        switch (l) {
+          case TimeoutFailure():
+            ScaffoldMessengerUtils.error(context, 'Thử lại sau');
+            break;
+          default:
+            ScaffoldMessengerUtils.error(context, 'Đã xảy ra lỗi thử lại sau');
+        }
+        return null;
+      },
+      (r) {
+        if (r == null) {
+          debugPrint('Chưa đăng kí khuôn mặt, chuyển sang camera');
+          context.goNamed(cameraRouteName, extra: {'user': user, 'index': 1});
+          return false;
+        }
+        return true;
+      },
+    );
   }
 
   //clear textfield
@@ -114,11 +160,8 @@ class SetupScreen extends StatelessWidget {
           _loginAsUser(context, state.user!);
         } else if (state.status == AuthStatus.error) {
           // Xử lý khi cập nhật thông tin thất bại
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content:
-                    Text(state.errorMessage ?? 'Cập nhật thông tin thất bại')),
-          );
+          ScaffoldMessengerUtils.error(
+              context, state.errorMessage ?? 'Cập nhật thông tin thất bại');
         }
       },
       child: child,

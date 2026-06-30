@@ -75,7 +75,7 @@ class UserAuthRemoteDatasource {
         return Left(InvalidDataFailure('Sai email hoặc mật khẩu.'));
       }
 
-      return Left(EmptyDataFailure());
+      return Left(InvalidDataFailure('Sai email hoặc mật khẩu.'));
     } on TimeoutException {
       debugPrint('Hết thời gian chờ khi đăng nhập');
       return Left(TimeoutFailure());

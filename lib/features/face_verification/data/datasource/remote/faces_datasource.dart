@@ -40,7 +40,7 @@ class FacesRemoteDataSource {
   }
 
   //lấy khuôn mặt đã được nhận diện từ database theo userId
-  Future<Either<Failure, FaceEmbeddingModel>> fetchRecognizedFaceByUserId(
+  Future<Either<Failure, FaceEmbeddingModel?>> fetchRecognizedFaceByUserId(
       String userId) async {
     try {
       final snapshot = await db
@@ -58,7 +58,7 @@ class FacesRemoteDataSource {
         return Right(FaceEmbeddingModel.fromJson(faceMap));
       } else {
         debugPrint('Không tìm thấy khuôn mặt đã nhận diện cho userId: $userId');
-        return Left(const EmptyDataFailure());
+        return Right(null);
       }
     } on TimeoutException {
       debugPrint('Hết thời gian chờ khi lấy khuôn mặt');
