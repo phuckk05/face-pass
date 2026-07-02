@@ -103,31 +103,104 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     emit(state.copyWith(status: AttendanceStateStatus.loading));
 
     final now = DateTime.now();
+
+    // Lấy log hôm nay của user
     final todayLogs = AttendanceLogUtils.logsForDate(
       logs: state.data,
       userId: event.userId,
       date: now,
     );
+
+    // Xác định lần chấm tiếp theo là CheckIn hay CheckOut
     final nextType = AttendanceLogUtils.nextType(todayLogs);
 
-    //ca 1: 9h - 13h
-    final workStartTime1 = DateTime(now.year, now.month, now.day, 9);
-    final workEndTime1 = DateTime(now.year, now.month, now.day, 13);
-    //ca 2: 14h - 18h
-    final workStartTime2 = DateTime(now.year, now.month, now.day, 14);
-    final workEndTime2 = DateTime(now.year, now.month, now.day, 18);
+    // Mốc phân chia ca
+    final shiftSplitTime = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      13,
+      30,
+    );
 
-    //lấy biên của ca làm việc hiện tại, bằng nằm trong khảng thời gian + 60 phút, để tránh trường hợp checkin trước giờ làm việc
-    bool isInWorkTime() {
-      if (now.isAfter(workStartTime1.subtract(const Duration(minutes: 60))) &&
-          now.isBefore(workEndTime1.add(const Duration(minutes: 60)))) {
-        return true;
-      } else if (now
-              .isAfter(workStartTime2.subtract(const Duration(minutes: 60))) &&
-          now.isBefore(workEndTime2.add(const Duration(minutes: 60)))) {
-        return false;
+// Ca 1
+    final shift1Start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      9,
+      0,
+    );
+
+    final shift1Late = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      9,
+      15,
+    );
+
+    final shift1End = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      13,
+      0,
+    );
+
+    // Ca 2
+    final shift2Start = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      14,
+      0,
+    );
+
+    final shift2Late = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      14,
+      15,
+    );
+
+    final shift2End = DateTime(
+      now.year,
+      now.month,
+      now.day,
+      18,
+      0,
+    );
+
+    //xác định ca làm
+    final isShift1 = now.isBefore(shiftSplitTime);
+
+    AttendanceStatus attendanceStatus;
+
+    if (isShift1) {
+      //ca 1
+
+      if (nextType == AttendanceType.checkIn) {
+        attendanceStatus = now.isAfter(shift1Late)
+            ? AttendanceStatus.late
+            : AttendanceStatus.onTime;
+      } else {
+        attendanceStatus = now.isBefore(shift1End)
+            ? AttendanceStatus.early
+            : AttendanceStatus.onTime;
       }
-      return true;
+    } else {
+      //ca 2
+      if (nextType == AttendanceType.checkIn) {
+        attendanceStatus = now.isAfter(shift2Late)
+            ? AttendanceStatus.late
+            : AttendanceStatus.onTime;
+      } else {
+        attendanceStatus = now.isBefore(shift2End)
+            ? AttendanceStatus.early
+            : AttendanceStatus.onTime;
+      }
     }
 
     try {
@@ -139,13 +212,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         userName: event.userName,
         checkedAt: now,
         type: nextType,
-        status: nextType == AttendanceType.checkIn
-            ? (now.isAfter(workStartTime1)
-                ? AttendanceStatus.late
-                : AttendanceStatus.onTime)
-            : (now.isBefore(workEndTime1)
-                ? AttendanceStatus.early
-                : AttendanceStatus.onTime),
+        status: attendanceStatus,
         similarity: event.similarity,
         imageBase64: event.imageBase64,
         gpsLocation: '${gpsLocation.latitude},${gpsLocation.longitude}',
