@@ -436,7 +436,6 @@ class _FaceEmbeddingModel implements FaceEmbeddingModel {
 
   @override
   final String? imageBase64;
-
   @override
   final DateTime registeredAt;
 

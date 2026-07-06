@@ -1,4 +1,8 @@
-import 'package:facepass/features/auth/domain/entities/user.dart';
+import 'package:facepass/core/utils/scaffold_messenger_utils.dart';
+import 'package:facepass/features/admin/domain/entities/user.dart' as UserAdmin;
+import 'package:facepass/features/admin/presentation/screens/manage_account_screen.dart';
+import 'package:facepass/features/admin/presentation/screens/update_screen.dart';
+import 'package:facepass/features/auth/domain/entities/user.dart' as UserAuth;
 import 'package:facepass/features/face_verification/presentasion/screens/camera_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -22,6 +26,8 @@ final String registerRoute = '/register';
 final String homeRoute = '/home';
 final String adminHomeRoute = '/admin-home';
 final String grantAccountRoute = '/grant-account';
+final String manageAccountRoute = '/manage-account';
+final String updateAccountRoute = '/update-account';
 
 final String managerHomeRoute = '/manager-home';
 
@@ -39,6 +45,8 @@ final String setupRouteName = 'setup';
 final String homeRouteName = 'home';
 final String adminHomeRouteName = 'admin-home';
 final String grantAccountRouteName = 'grant-account';
+final String manageAccountRouteName = 'manage-account';
+final String updateAccountRouteName = 'update-account';
 
 final String managerHomeRouteName = 'manager-home';
 
@@ -77,7 +85,7 @@ final GoRouter router = GoRouter(
       name: setupRouteName,
       builder: (context, state) {
         final user = state.extra != null && state.extra is Map<String, dynamic>
-            ? (state.extra as Map<String, dynamic>)['user'] as User
+            ? (state.extra as Map<String, dynamic>)['user'] as UserAuth.User
             : null;
         if (user == null) {
           return LoginScreen();
@@ -89,10 +97,10 @@ final GoRouter router = GoRouter(
         path: cameraRoute,
         name: cameraRouteName,
         builder: (context, state) {
-          final user =
-              state.extra != null && state.extra is Map<String, dynamic>
-                  ? (state.extra as Map<String, dynamic>)['user'] as User
-                  : null;
+          final user = state.extra != null &&
+                  state.extra is Map<String, dynamic>
+              ? (state.extra as Map<String, dynamic>)['user'] as UserAuth.User
+              : null;
           final index =
               state.extra != null && state.extra is Map<String, dynamic>
                   ? (state.extra as Map<String, dynamic>)['index'] as int
@@ -114,6 +122,27 @@ final GoRouter router = GoRouter(
       path: managerHomeRoute,
       name: managerHomeRouteName,
       builder: (context, state) => const ManagerHomeScreen(),
-    )
+    ),
+    GoRoute(
+      path: manageAccountRoute,
+      name: manageAccountRouteName,
+      builder: (context, state) => const ManageAccountScreen(),
+    ),
+    GoRoute(
+        path: updateAccountRoute,
+        name: updateAccountRouteName,
+        builder: (context, state) {
+          final user = state.extra != null &&
+                  state.extra is Map<String, dynamic>
+              ? (state.extra as Map<String, dynamic>)['user'] as UserAdmin.User
+              : null;
+          if (user == null) {
+            ScaffoldMessengerUtils.error(
+                context, 'Không tìm thấy thông tin người dùng');
+            context.pop();
+            return ManageAccountScreen();
+          }
+          return UpdateScreen(user: user);
+        }),
   ],
 );

@@ -1,3 +1,8 @@
+import 'package:facepass/features/admin/data/data_source/users_datasource.dart';
+import 'package:facepass/features/admin/data/repository/user_repository_impl.dart';
+import 'package:facepass/features/admin/domain/usecase/user_usecase.dart';
+import 'package:facepass/features/admin/domain/repository/user_repository.dart'
+    as admin_repo;
 import 'package:facepass/features/admin/presentation/cubits/role_cubit.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -7,9 +12,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 
 import 'core/router/router_app.dart';
+import 'features/admin/presentation/blocs/users/users_bloc.dart';
 import 'features/auth/data/data_source/users_datasource.dart';
 import 'features/auth/data/repository/user_repository_impl.dart';
-import 'features/auth/domain/repositories/user_repository.dart';
+import 'features/auth/domain/repositories/user_repository.dart' as auth_repo;
 import 'features/auth/domain/usecase/user_usecase.dart';
 import 'features/auth/presentation/blocs/auth/auth_bloc.dart';
 import 'features/face_verification/data/datasource/remote/attendance_datasource.dart';
@@ -53,8 +59,14 @@ Future<void> init() async {
   sl.registerLazySingleton<UserAuthRemoteDatasource>(
     () => UserAuthRemoteDatasource(),
   );
+  sl.registerLazySingleton<UserAdminRemoteDatasource>(
+    () => UserAdminRemoteDatasource(),
+  );
 
   // repository
+  sl.registerLazySingleton<admin_repo.UserRepository>(
+    () => UserAdminRepositoryImpl(userDatasource: sl()),
+  );
   sl.registerLazySingleton<RecognizingRepository>(
     () =>
         RecognizingRepositoryImpl(facesDatasource: sl(), userDatasource: sl()),
@@ -65,11 +77,14 @@ Future<void> init() async {
   sl.registerLazySingleton<AttendaceRepository>(
     () => AttendanceRepositoryImpl(remoteDataSource: sl()),
   );
-  sl.registerLazySingleton<UserRepository>(
+  sl.registerLazySingleton<auth_repo.UserRepository>(
     () => UserRepositoryImpl(userDatasource: sl()),
   );
 
   // usecase
+  sl.registerLazySingleton(
+    () => UserAdminUsecase(userRepository: sl()),
+  );
   sl.registerLazySingleton(
     () => RegisterFaceUseCase(recognizingRepository: sl()),
   );
@@ -109,6 +124,9 @@ void main() async {
         BlocProvider(
           create: (_) => AuthBloc(userUsecase: sl()),
         ),
+        BlocProvider(
+          create: (_) => UsersBloc(userAdminUsecase: sl()),
+        ),
         //Đăng kí cubit
         BlocProvider(create: (_) => CameraProcessCubit()),
         BlocProvider(create: (_) => RoleCubit()),
@@ -125,6 +143,7 @@ class FacePass extends StatelessWidget {
   Widget build(BuildContext context) {
     context.read<RecognizedFacesBloc>().add(LoadRecognizedFacesEvent());
     context.read<AttendanceBloc>().add(FetchAttendancesEvent());
+    context.read<UsersBloc>().add(GetAllUsersEvent());
 
     return MaterialApp.router(
       // builder: DevicePreview.appBuilder,

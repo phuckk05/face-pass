@@ -65,6 +65,16 @@ class AdminHomeScreen extends StatelessWidget {
                 children: [
                   ButtonCus(
                       isLoading: false,
+                      text: 'Quản lý tài khoản',
+                      width: double.infinity,
+                      height: 50,
+                      onPressed: () async {
+                        context.pushNamed(manageAccountRouteName);
+                      },
+                      textStyle: const TextStyle(fontSize: 16)),
+                  const SizedBox(height: 20),
+                  ButtonCus(
+                      isLoading: false,
                       text: 'Cấp tài khoản',
                       width: double.infinity,
                       height: 50,

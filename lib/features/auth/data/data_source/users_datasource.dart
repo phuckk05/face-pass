@@ -65,9 +65,9 @@ class UserAuthRemoteDatasource {
         final userData = Map<String, dynamic>.from(
           data.values.first as Map,
         );
-
-        debugPrint('Dữ liệu người dùng: $userData');
-        debugPrint('Mật khẩu nhập vào: $password');
+        if (userData['isDeleted'] == true) {
+          return Left(ServerFailure('Tài khoản đã bị xóa.'));
+        }
 
         if (userData['password'] == password) {
           return Right(UserModel.fromJson(userData));
