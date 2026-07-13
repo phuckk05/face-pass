@@ -1,3 +1,4 @@
+import 'package:facepass/core/constants/app_colors.dart';
 import 'package:facepass/core/utils/scaffold_messenger_utils.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/attendance/attendance_bloc.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ class TimelineScreen extends StatelessWidget {
             onPressed: () => Navigator.of(context).pop(),
           ),
           title: Text('Đi trễ', style: TextStyle(color: Colors.white)),
-          backgroundColor: const Color(0xFF2d6a4f),
+          backgroundColor: AppColors.primary,
           actions: [
             BlocBuilder<AttendanceBloc, AttendanceState>(
               builder: (context, state) {

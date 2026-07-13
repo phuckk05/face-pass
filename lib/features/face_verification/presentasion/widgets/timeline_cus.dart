@@ -1,3 +1,4 @@
+import 'package:facepass/core/constants/app_colors.dart';
 import 'package:facepass/core/utils/camera_utils.dart';
 import 'package:facepass/features/face_verification/domain/entities/attendance.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,7 @@ class TimelineCus extends StatelessWidget {
                         width: 10,
                         height: 10,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF2d6a4f),
+                          color: AppColors.primary,
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -39,7 +40,7 @@ class TimelineCus extends StatelessWidget {
                         margin: const EdgeInsets.symmetric(vertical: 8),
                         width: 2,
                         height: 60,
-                        color: const Color(0xFF2d6a4f),
+                        color: AppColors.primary,
                       ),
                     ],
                   ),

@@ -45,7 +45,7 @@ class ButtonCus extends StatelessWidget {
           onPressed: isLoading ? null : onPressed,
           style: ElevatedButton.styleFrom(
             elevation: 5,
-            disabledBackgroundColor: AppColors.textSecondary.withOpacity(0.5),
+            disabledBackgroundColor: AppColors.textPrimary.withOpacity(0.1),
             backgroundColor: backgroundColor ?? AppColors.primary,
             foregroundColor: textColor ?? AppColors.textPrimary,
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 6),
@@ -55,7 +55,7 @@ class ButtonCus extends StatelessWidget {
           ),
           child: isLoading == true
               ? LoadingInternal(
-                  color: AppColors.textPrimary,
+                  color: AppColors.primary,
                   loading: isLoading,
                 )
               : Text(

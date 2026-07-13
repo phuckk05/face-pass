@@ -283,6 +283,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
                           height: 50,
                           onPressed: () => _handleSetup(context),
                           backgroundColor: AppColors.primary,
+                          textColor: AppColors.primaryLight,
                           textStyle: const TextStyle(color: Colors.white));
                     })
                   ],

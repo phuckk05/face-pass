@@ -165,6 +165,7 @@ class GrantAccountScreen extends StatelessWidget {
                           width: double.infinity,
                           backgroundColor: AppColors.primary,
                           height: 50,
+                          textColor: AppColors.primaryLight,
                           onPressed: () => _handleGrantAccount(context),
                           textStyle: const TextStyle(color: Colors.white),
                         );

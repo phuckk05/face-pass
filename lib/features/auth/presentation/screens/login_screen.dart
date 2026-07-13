@@ -216,6 +216,7 @@ class LoginScreen extends StatelessWidget {
                               _handleLogin(_emailController.text,
                                   _passwordController.text, context);
                             },
+                            textColor: AppColors.primaryLight,
                             isLoading: state.status == AuthStatus.loading,
                             text: 'Đăng nhập',
                             width: double.infinity,
