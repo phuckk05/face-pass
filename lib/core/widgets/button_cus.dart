@@ -45,9 +45,9 @@ class ButtonCus extends StatelessWidget {
           onPressed: isLoading ? null : onPressed,
           style: ElevatedButton.styleFrom(
             elevation: 5,
-            disabledBackgroundColor: AppColors.greyColor,
-            backgroundColor: backgroundColor ?? AppColors.primaryColor,
-            foregroundColor: textColor ?? AppColors.neutralColor,
+            disabledBackgroundColor: AppColors.textSecondary.withOpacity(0.5),
+            backgroundColor: backgroundColor ?? AppColors.primary,
+            foregroundColor: textColor ?? AppColors.textPrimary,
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 6),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
@@ -55,14 +55,14 @@ class ButtonCus extends StatelessWidget {
           ),
           child: isLoading == true
               ? LoadingInternal(
-                  color: AppColors.neutralColor,
+                  color: AppColors.textPrimary,
                   loading: isLoading,
                 )
               : Text(
                   text,
-                  style: AppStyles.labelTaskStyle.copyWith(
+                  style: AppStyles.button.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: textColor ?? AppColors.neutralColor,
+                    color: textColor ?? AppColors.textPrimary,
                   ),
                 ),
         ),

@@ -118,7 +118,7 @@ class GrantAccountScreen extends StatelessWidget {
               snap: true,
               // pinned: false,
               // elevation: AppValues.cardElevation,
-              backgroundColor: AppColors.primaryColor,
+              backgroundColor: AppColors.primary,
               title: Text(
                 'Cấp tài khoản',
                 style: const TextStyle(color: Colors.white),
@@ -163,7 +163,7 @@ class GrantAccountScreen extends StatelessWidget {
                           isLoading: state.status == AuthStatus.loading,
                           text: 'Cấp tài khoản',
                           width: double.infinity,
-                          backgroundColor: AppColors.primaryColor,
+                          backgroundColor: AppColors.primary,
                           height: 50,
                           onPressed: () => _handleGrantAccount(context),
                           textStyle: const TextStyle(color: Colors.white),

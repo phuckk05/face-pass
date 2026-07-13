@@ -34,7 +34,7 @@ class ManagerHomeScreen extends StatelessWidget {
             snap: true,
             // pinned: false,
             // elevation: AppValues.cardElevation,
-            backgroundColor: AppColors.primaryColor,
+            backgroundColor: AppColors.primary,
             title: Text(
               'Manager',
               style: const TextStyle(color: Colors.white),

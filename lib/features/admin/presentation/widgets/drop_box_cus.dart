@@ -13,7 +13,7 @@ class DropBoxCus extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.progressColor.withOpacity(0.5)),
+        border: Border.all(color: AppColors.textPrimary.withOpacity(0.5)),
         borderRadius: BorderRadius.circular(8.0),
       ),
       child: DropdownButton<String>(

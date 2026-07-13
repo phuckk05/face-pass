@@ -1,3 +1,4 @@
+import 'package:facepass/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -73,7 +74,7 @@ class ButtomPannelCus extends StatelessWidget {
                           ? (isProcessing ? onScan : null)
                           : (isCheckSuccess ? onCheck : null),
                       style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFF2d6a4f),
+                        backgroundColor: AppColors.primary,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),

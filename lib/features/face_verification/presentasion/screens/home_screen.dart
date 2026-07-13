@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
             expandedHeight: 56,
             floating: true,
             snap: true,
-            backgroundColor: AppColors.primaryColor,
+            backgroundColor: AppColors.primary,
             title: const Text(
               'User',
               style: TextStyle(color: Colors.white),

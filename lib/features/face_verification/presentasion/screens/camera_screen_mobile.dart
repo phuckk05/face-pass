@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:camera/camera.dart';
+import 'package:facepass/core/constants/app_colors.dart';
 import 'package:facepass/core/router/router_app.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/attendance/attendance_bloc.dart';
 import 'package:facepass/features/face_verification/presentasion/blocs/recognized_faces/recognized_faces_bloc.dart';
@@ -390,7 +391,7 @@ class _CameraScreenState extends State<CameraScreen> {
             widget.index == 1 ? 'Đăng ký khuôn mặt' : 'Chấm công',
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: const Color(0xFF2d6a4f),
+          backgroundColor: AppColors.primary,
         ),
         body: SafeArea(
           child: Stack(

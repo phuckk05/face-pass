@@ -98,7 +98,7 @@ class RegisterScreen extends StatelessWidget {
                 snap: true,
                 // pinned: false,
                 // elevation: AppValues.cardElevation,
-                backgroundColor: AppColors.primaryColor,
+                backgroundColor: AppColors.primary,
                 title: Text(
                   'Đăng ký tài khoản',
                   style: const TextStyle(color: Colors.white),
@@ -174,7 +174,7 @@ class RegisterScreen extends StatelessWidget {
                           width: double.infinity,
                           height: 50,
                           onPressed: () => _checkEmailExists(context),
-                          backgroundColor: AppColors.primaryColor,
+                          backgroundColor: AppColors.primary,
                           textStyle: const TextStyle(color: Colors.white))
                     ],
                   ),

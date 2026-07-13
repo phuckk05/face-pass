@@ -160,7 +160,7 @@ class LoginScreen extends StatelessWidget {
           constraints: BoxConstraints(),
           icon: Icon(
             isVisible ? Icons.visibility : Icons.visibility_off,
-            color: AppColors.progressColor.withOpacity(0.5),
+            color: AppColors.textPrimary.withOpacity(0.5),
           ),
         );
 
@@ -180,7 +180,7 @@ class LoginScreen extends StatelessWidget {
                       style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.primaryColor),
+                          color: AppColors.primary),
                     ),
                     const SizedBox(height: 32),
                     const LabelCus(text: 'Email'),

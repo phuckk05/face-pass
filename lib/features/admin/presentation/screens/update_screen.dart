@@ -197,7 +197,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
                   icon: const Icon(Icons.arrow_back, color: Colors.white)),
               // pinned: false,
               // elevation: AppValues.cardElevation,
-              backgroundColor: AppColors.primaryColor,
+              backgroundColor: AppColors.primary,
               title: Text(
                 'Cập nhật thông tin',
                 style: const TextStyle(color: Colors.white),
@@ -282,7 +282,7 @@ class _UpdateScreenState extends State<UpdateScreen> {
                           width: double.infinity,
                           height: 50,
                           onPressed: () => _handleSetup(context),
-                          backgroundColor: AppColors.primaryColor,
+                          backgroundColor: AppColors.primary,
                           textStyle: const TextStyle(color: Colors.white));
                     })
                   ],

@@ -180,7 +180,7 @@ class SetupScreen extends StatelessWidget {
               snap: true,
               // pinned: false,
               // elevation: AppValues.cardElevation,
-              backgroundColor: AppColors.primaryColor,
+              backgroundColor: AppColors.primary,
               title: Text(
                 'Cập nhật thông tin',
                 style: const TextStyle(color: Colors.white),
@@ -247,7 +247,7 @@ class SetupScreen extends StatelessWidget {
                           width: double.infinity,
                           height: 50,
                           onPressed: () => _handleSetup(context),
-                          backgroundColor: AppColors.primaryColor,
+                          backgroundColor: AppColors.primary,
                           textStyle: const TextStyle(color: Colors.white));
                     })
                   ],

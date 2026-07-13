@@ -67,22 +67,22 @@ class TextFieldCus extends StatelessWidget {
           maxLines: expands != null ? null : maxLines ?? 1,
           minLines: expands != null ? null : minLines ?? 1,
           keyboardType: textInputType,
-          style: AppStyles.labelTaskStyle.copyWith(
-            color: textColor ?? AppColors.progressColor,
+          style: AppStyles.label.copyWith(
+            color: textColor ?? AppColors.textPrimary,
           ),
           decoration: InputDecoration(
               prefixIcon: prefixIcon != null ? Icon(prefixIcon) : null,
               hintText: hintText,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(borderRadius ?? 12),
-                borderSide: BorderSide(color: AppColors.progressColor),
+                borderSide: BorderSide(color: AppColors.textPrimary),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(borderRadius ?? 12),
-                borderSide: BorderSide(color: AppColors.progressColor),
+                borderSide: BorderSide(color: AppColors.textPrimary),
               ),
-              hintStyle: AppStyles.labelTaskStyle.copyWith(
-                color: (textColor ?? AppColors.progressColor).withOpacity(0.5),
+              hintStyle: AppStyles.label.copyWith(
+                color: (textColor ?? AppColors.textSecondary).withOpacity(0.5),
                 fontWeight: FontWeight.bold,
               ),
               contentPadding:

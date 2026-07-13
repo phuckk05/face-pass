@@ -55,7 +55,7 @@ class ManageAccountScreen extends StatelessWidget {
               expandedHeight: 56,
               pinned: true,
               // elevation: AppValues.cardElevation,
-              backgroundColor: AppColors.primaryColor,
+              backgroundColor: AppColors.primary,
               systemOverlayStyle: const SystemUiOverlayStyle(
                 statusBarColor: Colors.transparent,
                 statusBarIconBrightness: Brightness.light,

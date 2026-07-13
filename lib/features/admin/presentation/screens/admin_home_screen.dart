@@ -37,7 +37,7 @@ class AdminHomeScreen extends StatelessWidget {
             snap: true,
             // pinned: false,
             // elevation: AppValues.cardElevation,
-            backgroundColor: AppColors.primaryColor,
+            backgroundColor: AppColors.primary,
             title: Text(
               'Admin',
               style: const TextStyle(color: Colors.white),
@@ -67,6 +67,7 @@ class AdminHomeScreen extends StatelessWidget {
                       isLoading: false,
                       text: 'Quản lý tài khoản',
                       width: double.infinity,
+                      textColor: AppColors.primaryLight,
                       height: 50,
                       onPressed: () async {
                         context.pushNamed(manageAccountRouteName);
@@ -78,6 +79,7 @@ class AdminHomeScreen extends StatelessWidget {
                       text: 'Cấp tài khoản',
                       width: double.infinity,
                       height: 50,
+                      textColor: AppColors.primaryLight,
                       onPressed: () {
                         context.pushNamed(grantAccountRouteName);
                       },
@@ -88,6 +90,7 @@ class AdminHomeScreen extends StatelessWidget {
                       text: 'Tải file excel',
                       width: double.infinity,
                       height: 50,
+                      textColor: AppColors.primaryLight,
                       onPressed: () async {
                         //lấy data điểm danh
                         final data = context.read<AttendanceBloc>().state.data;
@@ -144,6 +147,7 @@ class AdminHomeScreen extends StatelessWidget {
                       text: 'Chấm công',
                       width: double.infinity,
                       height: 50,
+                      textColor: AppColors.primaryLight,
                       onPressed: () {
                         context.pushNamed(
                           cameraRouteName,
@@ -199,6 +203,7 @@ class AdminHomeScreen extends StatelessWidget {
                   const SizedBox(height: 20),
                   ButtonCus(
                     isLoading: false,
+                    textColor: AppColors.primaryLight,
                     text: 'Time line đi trễ',
                     width: double.infinity,
                     height: 50,

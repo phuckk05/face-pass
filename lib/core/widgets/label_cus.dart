@@ -10,7 +10,7 @@ class LabelCus extends StatelessWidget {
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.centerLeft,
-      child: Text(text, style: AppStyles.labelTaskStyle),
+      child: Text(text, style: AppStyles.label),
     );
   }
 }
