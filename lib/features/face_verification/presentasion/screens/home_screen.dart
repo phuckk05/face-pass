@@ -122,116 +122,189 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7FA),
       body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
-            expandedHeight: 56,
-            floating: true,
-            snap: true,
+            expandedHeight: 140,
+            floating: false,
+            pinned: true,
             backgroundColor: AppColors.primary,
-            title: const Text(
-              'User',
-              style: TextStyle(color: Colors.white),
+            elevation: 0,
+            flexibleSpace: FlexibleSpaceBar(
+              titlePadding: const EdgeInsets.only(left: 24, bottom: 16),
+              title: const Text(
+                'User',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22,
+                  letterSpacing: 0.5,
+                ),
+              ),
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.primary,
+                      AppColors.primary.withOpacity(0.7),
+                    ],
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      right: -50,
+                      top: -50,
+                      child: Container(
+                        width: 150,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      right: 40,
+                      top: 40,
+                      child: Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
             actions: [
-              IconButton(
-                icon: const Icon(Icons.logout, color: Colors.white),
-                onPressed: () {
-                  context.read<AuthBloc>().add(AuthReset());
-                  context.goNamed(loginRouteName);
-                },
+              Container(
+                margin: const EdgeInsets.only(right: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.logout_rounded, color: Colors.white),
+                  tooltip: 'Đăng xuất',
+                  onPressed: () {
+                    context.read<AuthBloc>().add(AuthReset());
+                    context.goNamed(loginRouteName);
+                  },
+                ),
               ),
             ],
           ),
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _HomeActionButton(
-                    text: 'Đăng ký khuôn mặt',
-                    onPressed: _openRegisterFace,
-                  ),
-                  const SizedBox(height: 20),
-                  _HomeActionButton(
-                    text: 'Xem ảnh khuôn mặt đã đăng ký',
-                    onPressed: _showRegisteredFace,
-                    outlined: true,
-                  ),
-                  const SizedBox(height: 20),
-                  _HomeActionButton(
-                    text: 'Chấm công',
-                    onPressed: () {
-                      context.pushNamed(
-                        cameraRouteName,
-                        extra: {
-                          'index': 2,
-                          'user': context.read<AuthBloc>().state.user,
-                        },
-                      );
-                    },
-                  ),
-                ],
+          SliverPadding(
+            padding: const EdgeInsets.all(24.0),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
+                childAspectRatio: 0.9,
               ),
+              delegate: SliverChildListDelegate([
+                _buildDashboardCard(
+                  context: context,
+                  title: 'Đăng ký\nkhuôn mặt',
+                  icon: Icons.face_retouching_natural_rounded,
+                  color: const Color(0xFF4361EE),
+                  onTap: _openRegisterFace,
+                ),
+                _buildDashboardCard(
+                  context: context,
+                  title: 'Xem ảnh\nđã đăng ký',
+                  icon: Icons.photo_library_rounded,
+                  color: const Color(0xFF9B59B6),
+                  onTap: _showRegisteredFace,
+                ),
+                _buildDashboardCard(
+                  context: context,
+                  title: 'Chấm công\n',
+                  icon: Icons.fact_check_rounded,
+                  color: const Color(0xFFF39C12),
+                  onTap: () {
+                    context.pushNamed(
+                      cameraRouteName,
+                      extra: {
+                        'index': 2,
+                        'user': context.read<AuthBloc>().state.user,
+                      },
+                    );
+                  },
+                ),
+              ]),
             ),
           ),
+          const SliverToBoxAdapter(child: SizedBox(height: 40)),
         ],
       ),
     );
   }
-}
 
-class _HomeActionButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-  final bool outlined;
-
-  const _HomeActionButton({
-    required this.text,
-    required this.onPressed,
-    this.outlined = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final shape = RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(12),
-    );
-    const color = Color(0xFF2d6a4f);
-
-    if (outlined) {
-      return SizedBox(
-        width: double.infinity,
-        child: OutlinedButton(
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            side: const BorderSide(color: color),
-            shape: shape,
+  Widget _buildDashboardCard({
+    required BuildContext context,
+    required String title,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.15),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
           ),
-          onPressed: onPressed,
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 16, color: color),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(20),
+          splashColor: color.withOpacity(0.1),
+          highlightColor: color.withOpacity(0.05),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, size: 35, color: color),
+                ),
+                const Spacer(),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF2D3142),
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-    }
-
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-          shape: shape,
-          backgroundColor: color,
-        ),
-        onPressed: onPressed,
-        child: Text(
-          text,
-          style: const TextStyle(fontSize: 16, color: Colors.white),
         ),
       ),
     );
