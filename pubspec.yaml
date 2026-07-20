@@ -79,6 +79,7 @@ dependencies:
 
   #location
   geolocator: ^14.0.2
+  fl_chart: ^1.2.0
 
 
 dev_dependencies:
